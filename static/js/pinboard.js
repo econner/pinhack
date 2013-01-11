@@ -1,174 +1,174 @@
-var Pinboard = (function() {
-  var pins = [],
-      mainCanvas = null,
-      mainContext = null,
-      viewportWidth = 0,
-      viewportHeight = 0,
-      // Currently selected pin.
-      mySelected = null,
-      offsetx = 0,
-      offsety = 0;
-        
-  /**
-   * Create DOM elements and get your game on
-   */
-  function initialize() {
-    // start by measuring the viewport
-    onWindowResize();
+function update(group, activeAnchor) {
+  var topLeft = group.get(".topLeft")[0];
+  var topRight = group.get(".topRight")[0];
+  var bottomRight = group.get(".bottomRight")[0];
+  var bottomLeft = group.get(".bottomLeft")[0];
+  var image = group.get(".image")[0];
 
-    // create a canvas for the fireworks
-    mainCanvas = document.createElement('canvas');
-    mainContext = mainCanvas.getContext('2d');
-
-    // set the dimensions on the canvas
-    setMainCanvasDimensions();
-
-    // add the canvas in
-    document.body.appendChild(mainCanvas);
-    
-    // Listeners.
-    document.addEventListener('mousedown', mouseDown, true);
-    document.addEventListener('mouseup', mouseUp, true);
-    document.addEventListener('mousemove', mouseMove, true);
-    
-    // add some test pins.
-    pins.push(makePin());
-    pins.push(makePin());
-    pins.push(makePin());
-    
-    // and now we set off
-    update();
+  // update anchor positions
+  switch (activeAnchor.getName()) {
+    case "topLeft":
+      topRight.attrs.y = activeAnchor.attrs.y;
+      bottomLeft.attrs.x = activeAnchor.attrs.x;
+      break;
+    case "topRight":
+      topLeft.attrs.y = activeAnchor.attrs.y;
+      bottomRight.attrs.x = activeAnchor.attrs.x;
+      break;
+    case "bottomRight":
+      bottomLeft.attrs.y = activeAnchor.attrs.y;
+      topRight.attrs.x = activeAnchor.attrs.x;
+      break;
+    case "bottomLeft":
+      bottomRight.attrs.y = activeAnchor.attrs.y;
+      topLeft.attrs.x = activeAnchor.attrs.x;
+      break;
   }
-  
-  function mouseDown(coords) {
-    $.each(pins, function(i, pin) {
-      var point = {"x": coords.x, "y": coords.y};
-      if (pin.pointOverlaps(point)) {
-        mySelected = pin;
-        offsetx = point.x - mySelected.pos.x;
-        offsety = point.y - mySelected.pos.y;
+
+  image.setPosition(topLeft.attrs.x, topLeft.attrs.y);
+
+  var width = topRight.attrs.x - topLeft.attrs.x;
+  var height = bottomLeft.attrs.y - topLeft.attrs.y;
+  if(width && height) {
+    image.setSize(width, height);
+  }
+}
+
+function addAnchor(group, x, y, name) {
+  var stage = group.getStage();
+  var layer = group.getLayer();
+
+  var anchor = new Kinetic.Circle({
+    x: x,
+    y: y,
+    stroke: "#666",
+    fill: "#ddd",
+    strokeWidth: 2,
+    radius: 8,
+    name: name,
+    draggable: true
+  });
+
+  anchor.on("dragmove", function() {
+    update(group, this);
+    layer.draw();
+  });
+  anchor.on("mousedown touchstart", function() {
+    group.setDraggable(false);
+    this.moveToTop();
+  });
+  anchor.on("dragend", function() {
+    group.setDraggable(true);
+    layer.draw();
+  });
+  // add hover styling
+  anchor.on("mouseover", function() {
+    var layer = this.getLayer();
+    document.body.style.cursor = "pointer";
+    this.setStrokeWidth(4);
+    layer.draw();
+  });
+  anchor.on("mouseout", function() {
+    var layer = this.getLayer();
+    document.body.style.cursor = "default";
+    this.setStrokeWidth(2);
+    layer.draw();
+  });
+
+  group.add(anchor);
+}
+function loadImages(sources, callback) {
+  var images = {};
+  var loadedImages = 0;
+  var numImages = 0;
+  for(var src in sources) {
+    numImages++;
+  }
+  for(var src in sources) {
+    images[src] = new Image();
+    images[src].onload = function() {
+      if(++loadedImages >= numImages) {
+        callback(images);
       }
-    });
-  }
-  
-  function mouseUp() {
-    mySelected = null;
-  }
-  
-  function mouseMove(coords) {
-    if (mySelected) {
-      mySelected.pos.x = coords.x - offsetx;
-      mySelected.pos.y = coords.y - offsety;
-    }
-  }
-  
-  function makePin() {
-    var position = {
-      "x": viewportWidth * Math.random(),
-      "y": viewportHeight * Math.random()
     };
-    var image = document.getElementById('meercat');
-    return new Pin(position, image);
+    images[src].src = sources[src];
   }
-  
-  /**
-   * Update the canvas based on the
-   * detected viewport size
+}
+
+function initStage(images) {
+  var stage = new Kinetic.Stage({
+    container: "container",
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+  var darthVaderGroup = new Kinetic.Group({
+    x: 270,
+    y: 100,
+    draggable: true
+  });
+  var yodaGroup = new Kinetic.Group({
+    x: 100,
+    y: 110,
+    draggable: true
+  });
+  var layer = new Kinetic.Layer();
+
+  /*
+   * go ahead and add the groups
+   * to the layer and the layer to the
+   * stage so that the groups have knowledge
+   * of its layer and stage
    */
-  function setMainCanvasDimensions() {
-    mainCanvas.width = viewportWidth;
-    mainCanvas.height = viewportHeight;
-  }
+  layer.add(darthVaderGroup);
+  layer.add(yodaGroup);
+  stage.add(layer);
 
-  /**
-   * Callback for window resizing -
-   * sets the viewport dimensions
-   */
-  function onWindowResize() {
-    viewportWidth = window.innerWidth;
-    viewportHeight = window.innerHeight;
-  }
-  
-  /**
-   * The main loop where everything happens
-   */
-  function update() {
-    clearContext();
-    requestAnimFrame(update);
-    drawScene();
-  }
-  
-  /**
-   * Update and draw the scene.
-   */
-  function drawScene() {
-    $.each(pins, function(i, pin) {
-      pin.update(viewportHeight);
-      pin.render(mainContext);
-    });
-  }
-  
-  /**
-   * Clears out the canvas with semi transparent
-   * black. The bonus of this is the trails effect we get
-   */
-  function clearContext() {
-    mainContext.clearRect(0, 0, viewportWidth, viewportHeight);
-  }
-  
-  // declare an API
-  return {
-    initialize: initialize,
-  };
-})();
+  // darth vader
+  var darthVaderImg = new Kinetic.Image({
+    x: 0,
+    y: 0,
+    image: images.darthVader,
+    width: 200,
+    height: 138,
+    name: "image"
+  });
 
-/**
-  * Pin Object.
-  */
-var Pin = function(position, image) {
-  this.pos = {
-    x: position.x || 0,
-    y: position.y || 0
-  };
-  this.lastPos = {
-    x: position.x || 0,
-    y: position.y || 0
-  };
-  this.image = image;
-  this.width = 200;
-  this.height = 300;
-};
+  darthVaderGroup.add(darthVaderImg);
+  addAnchor(darthVaderGroup, 0, 0, "topLeft");
+  addAnchor(darthVaderGroup, 200, 0, "topRight");
+  addAnchor(darthVaderGroup, 200, 138, "bottomRight");
+  addAnchor(darthVaderGroup, 0, 138, "bottomLeft");
 
-Pin.prototype = {
-  pointOverlaps: function(point) {
-    return point.x > this.pos.x && point.x < (this.pos.x + this.width)
-      && point.y > this.pos.y && point.y < (this.pos.y + this.height);
-  },
-  
-  update: function(height) {
-    // update the pins position.
-  },
+  darthVaderGroup.on("dragstart", function() {
+    this.moveToTop();
+  });
+  // yoda
+  var yodaImg = new Kinetic.Image({
+    x: 0,
+    y: 0,
+    image: images.yoda,
+    width: 93,
+    height: 104,
+    name: "image"
+  });
 
-  render: function(context) {
-    var x = Math.round(this.pos.x),
-        y = Math.round(this.pos.y),
-        width = this.width,
-        height = this.height;
+  yodaGroup.add(yodaImg);
+  addAnchor(yodaGroup, 0, 0, "topLeft");
+  addAnchor(yodaGroup, 93, 0, "topRight");
+  addAnchor(yodaGroup, 93, 104, "bottomRight");
+  addAnchor(yodaGroup, 0, 104, "bottomLeft");
 
-    context.save();
+  yodaGroup.on("dragstart", function() {
+    this.moveToTop();
+  });
 
-    // draw the line from where we were to where
-    // we are now
-    context.beginPath();
-    //context.fillStyle = 'green';
-    //context.fillRect(x, y, width, height);
-    context.drawImage(this.image, x, y);
+  stage.draw();
+}
 
-    context.restore();
-  }
-};
-
-// Go
 window.onload = function() {
-  Pinboard.initialize();
+  var sources = {
+    darthVader: "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg",
+    yoda: "http://www.html5canvastutorials.com/demos/assets/yoda.jpg"
+  };
+  loadImages(sources, initStage);
 };
