@@ -4,7 +4,7 @@ import os
 def _parse_arguments():
     parser = argparse.ArgumentParser(description='A very Pinterest hack.')
     parser.add_argument("-d", "--daemonize", help="daemonize the server", action='store_true', default=False)
-    parser.add_argument("--debug", help="debug mode (auto refreshes templates)", action='store_true', default=False)
+    parser.add_argument("--debug", help="debug mode (auto refreshes templates)", action='store_true', default=True)
     parser.add_argument("--port", default=7100, help="run on the given port", type=int)
     return parser.parse_args()
 cli_args = _parse_arguments()
