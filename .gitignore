@@ -1,2 +1,4 @@
+pinback_env
+.venv
 *.pyc
 .DS_Store
