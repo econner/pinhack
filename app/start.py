@@ -3,7 +3,6 @@ import tornado.ioloop
 import tornado.web
 import options
 import redis
-from tornadio2.server import SocketServer
 
 from models import Item, Board
 
