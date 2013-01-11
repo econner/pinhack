@@ -6,9 +6,9 @@ var Pinboard = (function() {
       viewportHeight = 0,
       // Currently selected pin.
       mySelected = null,
-      offsetx = 0;
+      offsetx = 0,
       offsety = 0;
-  
+        
   /**
    * Create DOM elements and get your game on
    */
@@ -67,7 +67,8 @@ var Pinboard = (function() {
       "x": viewportWidth * Math.random(),
       "y": viewportHeight * Math.random()
     };
-    return new Pin(position);
+    var image = document.getElementById('meercat');
+    return new Pin(position, image);
   }
   
   /**
@@ -121,11 +122,10 @@ var Pinboard = (function() {
   };
 })();
 
-
 /**
   * Pin Object.
   */
-var Pin = function(position) {
+var Pin = function(position, image) {
   this.pos = {
     x: position.x || 0,
     y: position.y || 0
@@ -134,6 +134,7 @@ var Pin = function(position) {
     x: position.x || 0,
     y: position.y || 0
   };
+  this.image = image;
   this.width = 200;
   this.height = 300;
 };
@@ -159,8 +160,9 @@ Pin.prototype = {
     // draw the line from where we were to where
     // we are now
     context.beginPath();
-    context.fillStyle = 'green';
-    context.fillRect(x, y, width, height);
+    //context.fillStyle = 'green';
+    //context.fillRect(x, y, width, height);
+    context.drawImage(this.image, x, y);
 
     context.restore();
   }
