@@ -33,6 +33,8 @@ var Pinboard = (function() {
     
     // add some test pins.
     pins.push(makePin());
+    pins.push(makePin());
+    pins.push(makePin());
     
     // and now we set off
     update();
@@ -132,7 +134,7 @@ var Pin = function(position) {
     x: position.x || 0,
     y: position.y || 0
   };
-  this.width = 100;
+  this.width = 200;
   this.height = 300;
 };
 
