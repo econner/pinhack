@@ -26,4 +26,12 @@
    Page Name 2
 ----------------------------------------- */
 
+#library {
+  display: none;
+}
+
+.test_image {
+  width: 20%;
+  height: 20%;
+}
 
