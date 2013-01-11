@@ -11,7 +11,7 @@ class Item(EmbeddedDocument):
   scale = FloatField  ()
   tags  = ListField   (StringField())
 
-class Board(EmbeddedDocument):
+class Board(Document):
   id          = UUIDField (auto_fill = True)
   read_only   = UUIDField (auto_fill = True)
   items       = ListField (EmbeddedDocumentField(Item))
