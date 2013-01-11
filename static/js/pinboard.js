@@ -51,7 +51,6 @@ var Pinboard = (function() {
   
   function mouseMove(coords) {
     if (mySelected) {
-      console.log("what");
       mySelected.pos.x = coords.x;
       mySelected.pos.y = coords.y;
     }
