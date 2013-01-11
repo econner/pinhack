@@ -1,25 +1,11 @@
-import uuid
 import tornado.ioloop
 import tornado.web
 import options
-import redis
 
-from models import Item, Board
-
-r = redis.StrictRedis(host='localhost', port=6379, db=0)
-r.set('foo', 'bar')
-
-class MainHandler(tornado.web.RequestHandler):
-  def get(self):
-    b = Board()
-    b.id = uuid.uuid4()
-    b.read_only = uuid.uuid4()
-    r.set("b_" + str(b.id), str(b.to_json()))
-    print 'created a board'
-    self.redirect('/'+str(b.id))
+from handlers import main_handler
 
 application = tornado.web.Application([
-  (r"/", MainHandler),
+  (r"/", main_handler.MainHandler),
   (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
 ])
 

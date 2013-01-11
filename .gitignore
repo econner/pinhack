@@ -2,4 +2,5 @@ pinhack_env
 .venv
 *.pyc
 .DS_Store
+*.swp
 redis-2.6.8
