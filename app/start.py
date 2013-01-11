@@ -2,6 +2,7 @@ import tornado.ioloop
 import tornado.web
 import options
 import redis
+from tornadio2.server import SocketServer
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -17,4 +18,4 @@ application = tornado.web.Application([
 
 if __name__ == "__main__":
     application.listen(options.cli_args.port)
-    tornado.ioloop.IOLoop.instance().start()
+    socketio_server = SocketServer(application)
