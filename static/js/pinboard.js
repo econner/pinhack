@@ -5,7 +5,9 @@ var Pinboard = (function() {
       viewportWidth = 0,
       viewportHeight = 0,
       // Currently selected pin.
-      mySelected = null;
+      mySelected = null,
+      offsetx = 0;
+      offsety = 0;
   
   /**
    * Create DOM elements and get your game on
@@ -31,6 +33,8 @@ var Pinboard = (function() {
     
     // add some test pins.
     pins.push(makePin());
+    pins.push(makePin());
+    pins.push(makePin());
     
     // and now we set off
     update();
@@ -41,6 +45,8 @@ var Pinboard = (function() {
       var point = {"x": coords.x, "y": coords.y};
       if (pin.pointOverlaps(point)) {
         mySelected = pin;
+        offsetx = point.x - mySelected.pos.x;
+        offsety = point.y - mySelected.pos.y;
       }
     });
   }
@@ -51,8 +57,8 @@ var Pinboard = (function() {
   
   function mouseMove(coords) {
     if (mySelected) {
-      mySelected.pos.x = coords.x;
-      mySelected.pos.y = coords.y;
+      mySelected.pos.x = coords.x - offsetx;
+      mySelected.pos.y = coords.y - offsety;
     }
   }
   
@@ -128,7 +134,7 @@ var Pin = function(position) {
     x: position.x || 0,
     y: position.y || 0
   };
-  this.width = 100;
+  this.width = 200;
   this.height = 300;
 };
 
