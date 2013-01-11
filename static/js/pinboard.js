@@ -121,6 +121,13 @@ var Pinboard = (function() {
   };
 })();
 
+/**
+ * Stores references to the images that
+ * we want to reference later on
+ */
+var Library = {
+  testImage: document.getElementById('meercat'),
+};
 
 /**
   * Pin Object.
@@ -159,8 +166,10 @@ Pin.prototype = {
     // draw the line from where we were to where
     // we are now
     context.beginPath();
-    context.fillStyle = 'green';
-    context.fillRect(x, y, width, height);
+    //context.fillStyle = 'green';
+    //context.fillRect(x, y, width, height);
+
+    context.drawImage(Library.testImage, x, y);
 
     context.restore();
   }
