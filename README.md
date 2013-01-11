@@ -33,6 +33,17 @@ Modify your ``.git/config`` file to look like this:
 The remote "web" allows you to push directly to the server we have running at
 ``deploy@ec2-54-235-213-135.compute-1.amazonaws.com``.
 
+Install Redis:
+
+	curl -O http://redis.googlecode.com/files/redis-2.6.8.tar.gz
+	tar xzf redis-2.6.8.tar.gz
+	cd redis-2.6.8
+	make
+
+Copy over redis init scripts:
+
+	sudo cp src/redis-server /usr/local/bin/
+	sudo cp src/redis-cli /usr/local/bin/
 
 Remote Setup
 ------------
