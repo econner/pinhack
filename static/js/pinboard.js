@@ -3,7 +3,9 @@ var Pinboard = (function() {
       mainCanvas = null,
       mainContext = null,
       viewportWidth = 0,
-      viewportHeight = 0;
+      viewportHeight = 0,
+      // Currently selected pin.
+      mySelected = null;
   
   /**
    * Create DOM elements and get your game on
@@ -22,11 +24,37 @@ var Pinboard = (function() {
     // add the canvas in
     document.body.appendChild(mainCanvas);
     
+    // Listeners.
+    document.addEventListener('mousedown', mouseDown, true);
+    document.addEventListener('mouseup', mouseUp, true);
+    document.addEventListener('mousemove', mouseMove, true);
+    
     // add some test pins.
     pins.push(makePin());
     
     // and now we set off
     update();
+  }
+  
+  function mouseDown(coords) {
+    $.each(pins, function(i, pin) {
+      var point = {"x": coords.x, "y": coords.y};
+      if (pin.pointOverlaps(point)) {
+        mySelected = pin;
+      }
+    });
+  }
+  
+  function mouseUp() {
+    mySelected = null;
+  }
+  
+  function mouseMove(coords) {
+    if (mySelected) {
+      console.log("what");
+      mySelected.pos.x = coords.x;
+      mySelected.pos.y = coords.y;
+    }
   }
   
   function makePin() {
@@ -101,25 +129,33 @@ var Pin = function(position) {
     x: position.x || 0,
     y: position.y || 0
   };
+  this.width = 100;
+  this.height = 300;
 };
 
 Pin.prototype = {
+  pointOverlaps: function(point) {
+    return point.x > this.pos.x && point.x < (this.pos.x + this.width)
+      && point.y > this.pos.y && point.y < (this.pos.y + this.height);
+  },
+  
   update: function(height) {
     // update the pins position.
   },
 
   render: function(context) {
     var x = Math.round(this.pos.x),
-        y = Math.round(this.pos.y);
+        y = Math.round(this.pos.y),
+        width = this.width,
+        height = this.height;
 
     context.save();
 
     // draw the line from where we were to where
     // we are now
     context.beginPath();
-    context.arc(x, y, this.radius, 0, 2 * Math.PI, false);
     context.fillStyle = 'green';
-    context.fill();
+    context.fillRect(x, y, width, height);
 
     context.restore();
   }
