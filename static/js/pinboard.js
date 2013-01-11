@@ -101,12 +101,6 @@ var Pin = function(position) {
     x: position.x || 0,
     y: position.y || 0
   };
-  this.vel = {
-    x: 0,
-    y: 0
-  };
-  this.GRAVITY = 1;
-  this.radius = 100;
 };
 
 Pin.prototype = {
