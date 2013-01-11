@@ -9,8 +9,3 @@ def getImages(url):
 		if imageURL is not None:
 			imageList.append(imageURL)
 	return imageList
-
-url = 'http://songofstyle.blogspot.com'
-imageList = getImages(url)
-for x in imageList:
-	print(x)
