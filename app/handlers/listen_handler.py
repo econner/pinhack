@@ -27,9 +27,9 @@ class EchoWebSocket(websocket.WebSocketHandler):
     board.updateItem(item)
     board.save()
     
-    #broadcastData = {"update_type": "pos_change", "item": json.loads(item.to_json())}
+    broadcastData = {"update_type": "pos_change", "item": json.loads(item.to_json())}
     for socket in sockets[board_id]:
-        socket.write_message(item.to_json())
+        socket.write_message(broadcastData)
 
   def on_close(self):
     print "WebSocket closed"

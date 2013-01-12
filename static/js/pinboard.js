@@ -7,6 +7,9 @@ function handleMessage(message) {
   if ("board" in data) {
     items = data["board"]["items"];
     loadImages(items, initStage);
+  } else if ("update_type" in data) {
+    item = data["item"];
+    
   }
 }
 
