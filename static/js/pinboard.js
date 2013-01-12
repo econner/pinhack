@@ -190,8 +190,8 @@ function initStage(images) {
       x: 0,
       y: 0,
       image: images[i],
-      width: 200,
-      height: 138,
+      width: images[i].width,
+      height: images[i].height,
       name: "image",
     });
     imageGroup.add(img);
