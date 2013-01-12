@@ -39,21 +39,53 @@
   height: 20%;
 }
 
-#user_bar {
+#user_bar_background, #user_bar {
   position:fixed;
-  right:0px;
-  top:0px;
-  background-color:#232323;
-  height:100%;
+  right:40px;
+  top:100px;
+  bottom: 100px;
   width:200px;
+  border-radius: 20px;
   z-index: 100;
+  padding: 20px;
+}
+
+#user_bar_background {
+  opacity: .5;
+  border: 1px solid black;
+  background-color:#000;
+}
+
+#add-image-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 4;
+}
+
+#pinners {
+  font-size: 40px;
+  color: white;
 }
 
 .top-bar{
   margin: 0 0 0px;
-  height: 105px;
-  line-height: 105px;
+  height: 45px;
+  line-height: 45px;
   background: #232323;
+  background-image: linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -o-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -moz-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -webkit-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -ms-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+
+  background-image: -webkit-gradient(
+  	linear,
+  	left bottom,
+  	left top,
+  	color-stop(0.12, rgb(28,28,28)),
+  	color-stop(0.56, rgb(46,46,46))
+  );
 }
 
 #user_bar ul {
@@ -61,15 +93,14 @@
   margin-right:20px;
   color: #cecece;
   list-style-type: none;
-  margin-top: 105px;
+  margin-top: 5px;
 }
 
 #user_bar ul li {
   background-image:url("/static/images/pin_green.png");
   background-size:30px 30px;
   background-repeat:no-repeat;
-  margin: 15px 0px 0px 10px;
-  padding: 10px 25px 10px 40px;
-  background-color: #343434;
+  padding: 10px 35px 10px 50px;
+  background-color: rgb(138, 137, 137);
   border-radius: 8px;
 }
