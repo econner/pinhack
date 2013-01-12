@@ -13,7 +13,6 @@ var UserDisplay = (function() {
 	};
 
 	var render = function(users_connected) {
-		console.info(users_connected);
 		renderUserDisplay(users_connected);
 	};
 
