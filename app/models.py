@@ -4,6 +4,7 @@ from dictshield.fields import UUIDField, StringField, FloatField, BooleanField
 from dictshield.fields.compound import ListField, EmbeddedDocumentField
 
 from redis_connection import redis_conn as r
+import json
 
 class Item(EmbeddedDocument):
   id     = UUIDField    (auto_fill  = True)
@@ -21,6 +22,8 @@ class Board(Document):
 
   @classmethod
   def get_from_db(cls, board_id):
-    #TODO: Convert to board
-    return r.get("b_%s" % board_id)
+    b_str = r.get("b_%s" % board_id)
+    b_json = json.loads(b_str)
+    print str(b_json)
+    return Board(**b_json)
 
