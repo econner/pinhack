@@ -4,14 +4,12 @@ var sources = [];
 socket.onmessage = handleMessage;
 console.log("here");
 function handleMessage(message) {
-  console.log(message);
   var data = $.parseJSON(message.data);
-  console.log(data);
   if ("board" in data) {
     var items = data["board"]["items"];
+    console.log(items);
     for (var i = 0; i < items.length; i++) {
-      console.log(items[i]);
-      sources.add(items[i]["url"]);
+      sources.push(items[i]["image_url"]);
     }
     loadImages(sources, initStage);
   }
