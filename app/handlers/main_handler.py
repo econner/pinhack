@@ -1,7 +1,7 @@
 from redis_connection import redis_conn as r
 import tornado.web
 import uuid
-
+import options
 from models import Item, Board
 
 
@@ -17,4 +17,4 @@ class BoardHandler(tornado.web.RequestHandler):
     board = Board.get(board_id)
     if not board:
       raise tornado.web.HTTPError(404)
-    self.render('index.html', board=board)
+    self.render('index.html', board=board, debug=options.cli_args.debug)

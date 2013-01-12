@@ -1,4 +1,3 @@
-var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
 var items = [];
 var pins = {};
 var stage = null;
