@@ -2,18 +2,15 @@ var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
 var sources = [];
 
 socket.onmessage = handleMessage;
-console.log("here");
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("board" in data) {
     var items = data["board"]["items"];
-    console.log(items);
     for (var i = 0; i < items.length; i++) {
       sources.push(items[i]["image_url"]);
     }
     loadImages(sources, initStage);
   }
-  
 }
 
 function update(group, activeAnchor) {
@@ -168,6 +165,3 @@ function initStage(images) {
     stage.draw();
   }
 }
-
-window.onload = function() {
-};
