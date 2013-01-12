@@ -100,7 +100,7 @@
   margin-bottom: 20px;
   background-size:30px 30px;
   background-repeat:no-repeat;
-  padding: 10px;
-  background-color: rgb(138, 137, 137);
   border-radius: 5px;
+  font-weight: thin;
+  font-size: 20px;
 }
