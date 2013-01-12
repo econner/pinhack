@@ -1,7 +1,8 @@
 var pins = {},
   stage = null,
   layer = null,
-  mouseDown = false;
+  mouseDown = false,
+  itemSelected = false;
 
 var PADDING = 10;
 
@@ -132,7 +133,6 @@ function addAnchor(group, x, y, name, item) {
     update(group, this, item);
     var currentTime = new Date()
     if (currentTime.getTime() % 2 == 0) {
-      console.log("yo");
       sendItemUpdate(group, item);
     }
     layer.draw();
@@ -141,11 +141,16 @@ function addAnchor(group, x, y, name, item) {
     group.setDraggable(false);
     this.moveToTop();
   });
+  anchor.on("dragstart", function() {
+    itemSelected = true;
+  });
+  
   anchor.on("dragend", function() {
     group.setDraggable(true);
     var size = group.get(".image")[0].getSize();
     resizeItemGroup(group, size.width, size.height, true);
     layer.draw();
+    itemSelected = false;
   });
   // add hover styling
   anchor.on("mouseover", function() {
@@ -232,10 +237,15 @@ function addGroupForItem(item, image) {
   };
 
   (function(image, item) {
+    itemGroup.on("dragstart", function(evt) {
+      itemSelected = true;
+    });
+    
     itemGroup.on("dragend", function(evt) {
       sendItemUpdate(this, item);
       pinboard.current_image = this.getChildren()[0];
       pinboard.current_item = item;
+      itemSelected = false;
     });
 
     itemGroup.on("dragmove", function() {
@@ -383,7 +393,7 @@ function initStage() {
   });
 
   stage.on('mousemove', function(evt) {
-    if (mouseDown) {
+    if (mouseDown && !itemSelected) {
       var circle = new Kinetic.Circle({
         x: evt.layerX,
         y: evt.layerY,
