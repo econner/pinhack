@@ -24,7 +24,6 @@ function handleMessage(message) {
   if ("users_connected" in data) {
     UserDisplay.render(data);
   }
-  console.log(message);
 
   if ("board" in data) {
     var items = data["board"]["items"];
