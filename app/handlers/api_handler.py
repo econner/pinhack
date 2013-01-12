@@ -18,7 +18,7 @@ class AddItemHandler(tornado.web.RequestHandler):
                 pos_x=pos_x, pos_y=pos_y, scale=scale, locked=locked)
     b = Board.get_from_db(board_id)
     b.items.append(item)
-    r.set("b_" + str(b.id), str(b.to_json()))
+    b.save()
   def get(self):
     self.write("Write only, bud")
     
