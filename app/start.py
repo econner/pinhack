@@ -9,6 +9,7 @@ application = tornado.web.Application([
   (r'/ws', listen_handler.EchoWebSocket),
   (r"/", main_handler.MainHandler),
   (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
+  (r'/(.*\-.*)', main_handler.BoardHandler),
 ])
 
 if __name__ == "__main__":
