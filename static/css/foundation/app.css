@@ -46,14 +46,68 @@
   background-color:#232323;
   height:100%;
   width:200px;
+  border-left: 2px solid;
+  border-left-color: #343434;
   z-index: 100;
+  background-image: linear-gradient(left , rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -o-linear-gradient(left , rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -moz-linear-gradient(left , rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -webkit-linear-gradient(left , rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -ms-linear-gradient(left , rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+
+  background-image: -webkit-gradient(
+  	linear,
+  	left bottom,
+  	right bottom,
+  	color-stop(0.12, rgb(166,166,166)),
+  	color-stop(0.72, rgb(209,209,209))
+  );
+}
+
+#add-image-btn {
+  color: rgb(65, 65, 66);
+  padding-right: 24px;
+  padding-top: 20px;
+  float: right;
+  background-color: rgb(196, 196, 196);
+  border-radius: 8px;
+  margin-right: 12px;
+  margin-top: 10px;
+  border: 1px solid;
+  border-color: rgb(141, 140, 140);
+  background-image: linear-gradient(bottom, rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -o-linear-gradient(bottom, rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -moz-linear-gradient(bottom, rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -webkit-linear-gradient(bottom, rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+  background-image: -ms-linear-gradient(bottom, rgb(166,166,166) 12%, rgb(209,209,209) 72%);
+
+  background-image: -webkit-gradient(
+  	linear,
+  	left bottom,
+  	left top,
+  	color-stop(0.12, rgb(166,166,166)),
+  	color-stop(0.72, rgb(209,209,209))
+  );
 }
 
 .top-bar{
   margin: 0 0 0px;
-  height: 105px;
-  line-height: 105px;
+  height: 45px;
+  line-height: 45px;
   background: #232323;
+  background-image: linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -o-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -moz-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -webkit-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+  background-image: -ms-linear-gradient(bottom, rgb(28,28,28) 12%, rgb(46,46,46) 56%);
+
+  background-image: -webkit-gradient(
+  	linear,
+  	left bottom,
+  	left top,
+  	color-stop(0.12, rgb(28,28,28)),
+  	color-stop(0.56, rgb(46,46,46))
+  );
 }
 
 #user_bar ul {
@@ -70,6 +124,6 @@
   background-repeat:no-repeat;
   margin: 15px 0px 0px 10px;
   padding: 10px 25px 10px 40px;
-  background-color: #343434;
+  background-color: rgb(138, 137, 137);
   border-radius: 8px;
 }
