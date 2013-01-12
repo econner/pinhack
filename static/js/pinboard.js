@@ -2,24 +2,29 @@ var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
 var items = [];
 var pins = {};
 var stage = null;
-var layer = null;
+var layer = null
 
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
-  if ("users_connected" in data) {
-    console.info("NEW USER " + data['user_id'] + " CONNECTED.");
-    UserDisplay.render(data['users_connected']);
-  }
-
   if ("board" in data) {
     items = data["board"]["items"];
-    loadImages(items, initStage);
+    loadImages(items);
   } else if ("update_type" in data) {
-    item = data["item"];
-    pin = pins[item.id];
-    pin.setPosition(item.pos_x, item.pos_y);
-    stage.draw();
+    if (data["update_type"] == "add_item") {
+      item = data["item"];
+      var img = new Image();
+      img.onload = function() {
+        addImage(img);
+      };
+      img.src = item["image_url"];
+      img.item = item;
+    } else {
+      item = data["item"];
+      pin = pins[item.id];
+      pin.setPosition(item.pos_x, item.pos_y);
+      stage.draw();
+    }
   }
 }
 
@@ -29,7 +34,7 @@ function update(group, activeAnchor) {
   var bottomRight = group.get(".bottomRight")[0];
   var bottomLeft = group.get(".bottomLeft")[0];
   var resizeWidget = group.get(".resizeWidget")[0];
-
+  
   var image = group.get(".image")[0];
 
   // update anchor positions
@@ -122,29 +127,95 @@ function addResizeWidget(group, x, y) {
     radius: 4,
     name: "resizeWidget",
   });
-
+  
   group.add(anchor);
 }
 
 
 function loadImages(items, callback) {
-  var images = [];
-  var loadedImages = 0;
-  var numItems = items.length;
-  for(var i = 0; i < numItems; i++) {
+  for (var i = 0; i < items.length; i++) {
+    item = items[i];
     var img = new Image();
-    images.push(img);
     img.onload = function() {
-      if(++loadedImages >= numItems) {
-        callback(images);
-      }
+      addImage(this);
     };
-    img.src = items[i]["image_url"];
-    img.item = items[i];
+    img.src = item["image_url"];
+    img.item = item;
   }
 }
 
-function initStage(images) {
+function addImage(image) {
+  var imageGroup = new Kinetic.Group({
+    x: image.item.pos_x,
+    y: image.item.pos_y,
+    draggable: true
+  });
+  
+  pins[image.item.id] = imageGroup;
+
+  (function(image) {
+    imageGroup.on("dragend", function() {
+      var position = this.getPosition();
+      image.item.pos_x = position.x;
+      image.item.pos_y = position.y;
+      
+      var data = {
+        "board_id": boardId,
+        "item": image.item
+      };
+
+      socket.send(JSON.stringify(data));
+    });
+    
+    imageGroup.on("dragmove", function() {
+      var currentTime = new Date()
+      if (currentTime.getTime() % 5 == 0) {
+        var position = this.getPosition();
+        image.item.pos_x = position.x;
+        image.item.pos_y = position.y;
+        
+        var data = {
+          "board_id": boardId,
+          "item": image.item
+        };
+
+        socket.send(JSON.stringify(data));
+      }
+    });
+    
+  })(image);
+
+  /*
+   * go ahead and add the groups
+   * to the layer and the layer to the
+   * stage so that the groups have knowledge
+   * of its layer and stage
+   */
+  layer.add(imageGroup);
+
+  var img = new Kinetic.Image({
+    x: 0,
+    y: 0,
+    image: image,
+    width: image.width,
+    height: image.height,
+    name: "image",
+  });
+  imageGroup.add(img);
+  var size = img.getSize();
+  addResizeWidget(imageGroup, size.width, size.height);
+  addAnchor(imageGroup, 0, 0, "topLeft");
+  addAnchor(imageGroup, size.width, 0, "topRight");
+  addAnchor(imageGroup, size.width, size.height, "bottomRight");
+  addAnchor(imageGroup, 0, size.height, "bottomLeft");
+
+  imageGroup.on("dragstart", function() {
+    this.moveToTop();
+  });
+  stage.draw();
+}
+
+function initStage() {
   stage = new Kinetic.Stage({
     container: "container",
     width: window.innerWidth,
@@ -152,75 +223,6 @@ function initStage(images) {
   });
   layer = new Kinetic.Layer();
   stage.add(layer);
-
-  for (var i = 0; i < images.length; i++) {
-    var imageGroup = new Kinetic.Group({
-      x: images[i].item.pos_x,
-      y: images[i].item.pos_y,
-      draggable: true
-    });
-
-    pins[images[i].item.id] = imageGroup;
-
-    (function(image) {
-      imageGroup.on("dragend", function() {
-        var position = imageGroup.getPosition();
-        image.item.pos_x = position.x;
-        image.item.pos_y = position.y;
-
-        var data = {
-          "board_id": boardId,
-          "item": image.item
-        };
-
-        socket.send(JSON.stringify(data));
-      });
-
-      imageGroup.on("dragmove", function() {
-        var currentTime = new Date()
-        if (currentTime.getTime() % 5 == 0) {
-          var position = imageGroup.getPosition();
-          image.item.pos_x = position.x;
-          image.item.pos_y = position.y;
-
-          var data = {
-            "board_id": boardId,
-            "item": image.item
-          };
-
-          socket.send(JSON.stringify(data));
-        }
-      });
-
-    })(images[i]);
-
-    /*
-     * go ahead and add the groups
-     * to the layer and the layer to the
-     * stage so that the groups have knowledge
-     * of its layer and stage
-     */
-    layer.add(imageGroup);
-
-    var img = new Kinetic.Image({
-      x: 0,
-      y: 0,
-      image: images[i],
-      width: images[i].width,
-      height: images[i].height,
-      name: "image",
-    });
-    imageGroup.add(img);
-    var size = img.getSize();
-    addResizeWidget(imageGroup, size.width, size.height);
-    addAnchor(imageGroup, 0, 0, "topLeft");
-    addAnchor(imageGroup, size.width, 0, "topRight");
-    addAnchor(imageGroup, size.width, size.height, "bottomRight");
-    addAnchor(imageGroup, 0, size.height, "bottomLeft");
-
-    imageGroup.on("dragstart", function() {
-      this.moveToTop();
-    });
-    stage.draw();
-  }
 }
+
+window.onload = initStage;
