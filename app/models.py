@@ -24,7 +24,7 @@ class Board(Document):
     r.set("b_" + str(self.id), str(self.to_json()))
 
   @classmethod
-  def get_from_db(cls, board_id):
+  def get(cls, board_id):
     b_str = r.get("b_%s" % board_id)
     b_json = json.loads(b_str)
     print str(b_json)

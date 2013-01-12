@@ -21,12 +21,12 @@ class AddItemHandler(tornado.web.RequestHandler):
     b.save()
   def get(self):
     self.write("Write only, bud")
-    
+
 class RemoveItemHandler(tornado.web.RequestHandler):
   def put(self, id = None, *args, **kwargs):
     board_id = self.get_argument('board_id')
     item_id = self.get_argument('id')
-    b = Board.get_from_db(board_id)
+    b = Board.get(board_id)
     for item in b.items:
         if item_id == item.id:
             b.items.remove(item)
