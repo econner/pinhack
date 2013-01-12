@@ -17,4 +17,4 @@ class BoardHandler(tornado.web.RequestHandler):
     board = Board.get(board_id)
     if not board:
       raise tornado.web.HTTPError(404)
-    self.render('../../static/index.html', board=board)
+    self.render('index.html', board=board)
