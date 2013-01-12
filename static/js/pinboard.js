@@ -116,6 +116,11 @@ function addAnchor(group, x, y, name, item) {
 
   anchor.on("dragmove", function() {
     update(group, this, item);
+    var currentTime = new Date()
+    if (currentTime.getTime() % 2 == 0) {
+      console.log("yo");
+      sendItemUpdate(group, item);
+    }
     layer.draw();
   });
   anchor.on("mousedown touchstart", function() {
@@ -221,7 +226,7 @@ function addGroupForItem(item, image) {
 
     itemGroup.on("dragmove", function() {
       var currentTime = new Date()
-      if (currentTime.getTime() % 5 == 0) {
+      if (currentTime.getTime() % 2 == 0) {
         sendItemUpdate(this, item);
       }
     });
