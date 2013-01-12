@@ -27,6 +27,7 @@
  Extend and Execute
 ----------------------------*/
 
+
     $.fn.reveal = function(options) {
         
         

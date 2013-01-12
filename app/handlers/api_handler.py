@@ -20,6 +20,10 @@ class AddItemHandler(tornado.web.RequestHandler):
     b = Board.get(board_id)
     b.items.append(item)
     b.save()
+    
+    data = {'update_type': 'add_item', 'item': json.loads(item.to_json())}
+    for socket in sockets[board_id]:
+        socket.write_message(json.dumps(data))
 
   def get(self):
     for socket in sockets:

@@ -1,7 +1,5 @@
 $(function() {
-     $("#add-image-btn").click(function() {
-     	$('#add-image-container').load('/static/imagePicker.html');
-     });
+     $('#add-image-container').load('/static/imagePicker.html');
 });
 
 function formSubmit()
@@ -28,6 +26,7 @@ function formSubmit()
 		  				scale: 1, locked: true
 		  		}}).done(function() {
 		  			$("#add-image-modal").trigger('reveal:close');
+
 		  		});
 		});
 	});
