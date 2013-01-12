@@ -14,19 +14,14 @@ var UserDisplay = (function() {
 			'username': username,
 			'board_id': boardId
 		};
-		console.info(data);
-		var old_username = $.cookie("username");
-		console.info("OLD USERNAME:" + old_username);
-		console.info("NEW USERNAME:" + username);
+		cur_username = username;
 		socket.send(JSON.stringify(data));
 		$.cookie("username", username);
 	};
 
 	var checkForUsername = function() {
-		console.info("USERNAME:" + $.cookie("username"));
 		if($.cookie("username") !== "") {
 			cur_username = $.cookie("username");
-			console.info("USERNAME IS:" + cur_username);
 		}
 	};
 
