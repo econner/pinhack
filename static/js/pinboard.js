@@ -21,6 +21,7 @@ function handleMessage(message) {
 
   if ("board" in data) {
     var items = data["board"]["items"];
+    pinboard.name = data["board"]["name"] || "Pinboard";
     addItems(items);
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
@@ -37,6 +38,8 @@ function handleMessage(message) {
       });
       layer.add(line);
       stage.draw();
+    } else if (data["update_type"] == "board_name_change") {
+      pinboard.name = data["name"];
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -53,6 +56,8 @@ function handleMessage(message) {
       stage.draw();
     }
   }
+
+  $("#pinners").html(pinboard.name);
 }
 
 function resizeItemGroup(itemGroup, newWidth, newHeight, shouldUpdateDragger) {
@@ -141,7 +146,7 @@ function addAnchor(group, x, y, name, item) {
   anchor.on("dragstart", function() {
     itemSelected = true;
   });
-  
+
   anchor.on("dragend", function() {
     group.setDraggable(true);
     var size = group.get(".image")[0].getSize();
@@ -182,7 +187,7 @@ function addResizeWidget(group, x, y) {
 
 function addPinImage(group) {
   var img = new Image();
-  
+
   img.onload = function() {
     var kineticImage = new Kinetic.Image({
       x: -10,
@@ -192,7 +197,7 @@ function addPinImage(group) {
       height: 30,
       name: "pin_image",
     });
-    
+
     //group.add(kineticImage);
     //stage.draw();
   };
@@ -237,7 +242,7 @@ function addGroupForItem(item, image) {
     itemGroup.on("dragstart", function(evt) {
       itemSelected = true;
     });
-    
+
     itemGroup.on("dragend", function(evt) {
       sendItemUpdate(this, item);
       pinboard.current_image = this.getChildren()[0];
