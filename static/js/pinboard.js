@@ -42,7 +42,7 @@ function handleMessage(message) {
         var line = new Kinetic.Line({
           points: [point.x - point.dx, point.y - point.dy, point.x, point.y],
           stroke: 'black',
-          strokeWidth: 15,
+          strokeWidth: 8,
           lineCap: 'round',
           lineJoin: 'round'
         });
@@ -410,7 +410,7 @@ function initStage() {
       var line = new Kinetic.Line({
         points: [evt.layerX - evt.webkitMovementX, evt.layerY - evt.webkitMovementY, evt.layerX, evt.layerY],
         stroke: 'black',
-        strokeWidth: 15,
+        strokeWidth: 8,
         lineCap: 'round',
         lineJoin: 'round'
       });
