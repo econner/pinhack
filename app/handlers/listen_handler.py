@@ -36,6 +36,19 @@ class EchoWebSocket(websocket.WebSocketHandler):
         users[board_id].insert(idx, new_user_id)
         socket_to_user_id[self] = new_user_id
 
+    def _update_board_name(self, board_id, name):
+        board = Board.get(board_id)
+        board.name = name[:16]
+        board.save()
+        return board.name
+
+    def _broadcast_board_name_update(self, board_id, name):
+        self.broadcast(
+            board_id, {
+                'update_type': 'board_name_update',
+                'name': name,
+            }, write_to_self=False)
+
     def open(self, board_id):
         user_id = self._generate_user_id()
 
@@ -65,6 +78,9 @@ class EchoWebSocket(websocket.WebSocketHandler):
         if message_type and message_type == 'user_update':
             self._update_user(board_id, data['username'])
             self._broadcast_user_display(board_id)
+        elif message_type and message_type == 'board_name_update':
+            name = self._update_board_name(board_id, data['name'])
+            self._broadcast_board_name_update(board_id, name)
         else:
             board = Board.get(board_id)
             item = Item(**data["item"])

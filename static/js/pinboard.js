@@ -43,7 +43,7 @@ function handleMessage(message) {
       });
       layer.add(line);
       stage.draw();
-    } else if (data["update_type"] == "board_name_change") {
+    } else if (data["update_type"] == "board_name_update") {
       updateBoardName(data["name"]);
     } else {
       var updatedItem = data["item"];
