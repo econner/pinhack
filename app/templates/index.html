@@ -14,10 +14,17 @@
       var socket;
       $(document).ready(function() {
         {% if debug %}
-        socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
+        var socket_location = "ws://localhost:7100/ws/" + boardId;
         {% else %}
-        socket = new WebSocket("ws://ec2-54-235-213-135.compute-1.amazonaws.com/ws/" + boardId);
+        var socket_location = "ws://ec2-54-235-213-135.compute-1.amazonaws.com/ws/" + boardId;
         {% end %}
+        socket = new WebSocket(socket_location);
+        socket.onclose = function() {
+          //try to reconnect in 5 seconds
+          setTimeout(function() {
+            socket = new WebSocket(socket_location);
+          }, 5000);
+        };
          UserDisplay.checkForUsername();
       });
     </script>

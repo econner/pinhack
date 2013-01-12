@@ -3,6 +3,7 @@ from models import Item, Board
 import uuid
 import json
 from listen_handler import sockets
+from listen_handler import EchoWebSocket
 
 
 class AddItemHandler(tornado.web.RequestHandler):
@@ -24,7 +25,7 @@ class AddItemHandler(tornado.web.RequestHandler):
 
         data = {'update_type': 'add_item', 'item': json.loads(item.to_json())}
         for socket in sockets[board_id]:
-            socket.write_message(json.dumps(data))
+            EchoWebSocket.safe_write_to_socket(socket, json.dumps(data))
 
 
 class RemoveItemHandler(tornado.web.RequestHandler):
@@ -38,7 +39,7 @@ class RemoveItemHandler(tornado.web.RequestHandler):
         b.save()
         data = {'update_type': 'remove_item', 'item_id': item_id}
         for socket in sockets[board_id]:
-            socket.write_message(json.dumps(data))
+            EchoWebSocket.safe_write_to_socket(socket, json.dumps(data))
 
     def get(self):
         self.write("Pop chips.")

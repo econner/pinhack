@@ -24,7 +24,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
 
     def _broadcast_user_display(self, board_id):
         for socket in sockets[board_id]:
-            socket.write_message(json.dumps({
+            self.safe_write_to_socket(socket, json.dumps({
                 'users_connected': users[board_id],
                 'current_user': socket_to_user_id[socket]
             }))
@@ -62,7 +62,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
             broadcastData = json.dumps({
                 'board': json.loads(board.to_json())
             })
-            self.write_message(broadcastData)
+            self.safe_write_to_socket(self, broadcastData)
             self._broadcast_user_display(board_id)
 
     def on_message(self, message):
@@ -94,15 +94,27 @@ class EchoWebSocket(websocket.WebSocketHandler):
             self.broadcast(board_id, broadcastData, write_to_self=False)
 
     def on_close(self):
-        board_id = socket_to_board_id.get(self)
-        user_id = socket_to_user_id.get(self)
-        users[board_id].remove(user_id)
-        sockets[board_id].remove(self)
-        self._broadcast_user_display(board_id)
-        del socket_to_board_id[self]
-        del socket_to_user_id[self]
+        self._remove_socket(self)
 
     def broadcast(self, board_id, message, write_to_self=True):
         for socket in sockets[board_id]:
             if socket is not self or write_to_self:
-                socket.write_message(message)
+                self.safe_write_to_socket(socket, message)
+
+    def _remove_socket(self, socket):
+        board_id = socket_to_board_id.get(socket)
+        user_id = socket_to_user_id.get(socket)
+        users[board_id].remove(user_id)
+        sockets[board_id].remove(socket)
+        self._broadcast_user_display(board_id)
+        del socket_to_board_id[socket]
+        del socket_to_user_id[socket]
+
+    @classmethod
+    def safe_write_to_socket(self, socket, message):
+        try:
+            socket.write_message(message)
+        except Exception:
+            print "FAILED TO WRITE TO SOCKET!"
+            self._remove_socket(self)
+
