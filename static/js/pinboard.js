@@ -6,11 +6,10 @@ var layer = null
 
 socket.onmessage = handleMessage;
 function handleMessage(message) {
-  console.log(message);
   var data = $.parseJSON(message.data);
   if ("board" in data) {
     items = data["board"]["items"];
-    loadImages(items, initStage);
+    loadImages(items);
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
       item = data["item"];
@@ -134,23 +133,14 @@ function addResizeWidget(group, x, y) {
 
 
 function loadImages(items, callback) {
-  var images = [];
-  var loadedImages = 0;
-  var numItems = items.length;
-  if (images.length == 0) {
-    callback(images);
-  }
-  
-  for(var i = 0; i < numItems; i++) {
+  for (var i = 0; i < items.length; i++) {
+    item = items[i];
     var img = new Image();
-    images.push(img);
     img.onload = function() {
-      if(++loadedImages >= numItems) {
-        callback(images);
-      }
+      addImage(this);
     };
-    img.src = items[i]["image_url"];
-    img.item = items[i];
+    img.src = item["image_url"];
+    img.item = item;
   }
 }
 
@@ -225,7 +215,7 @@ function addImage(image) {
   stage.draw();
 }
 
-function initStage(images) {
+function initStage() {
   stage = new Kinetic.Stage({
     container: "container",
     width: window.innerWidth,
@@ -233,8 +223,6 @@ function initStage(images) {
   });
   layer = new Kinetic.Layer();
   stage.add(layer);
-
-  for (var i = 0; i < images.length; i++) {
-    addImage(images[i]);
-  }
 }
+
+window.onload = initStage;

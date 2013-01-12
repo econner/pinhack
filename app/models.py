@@ -28,7 +28,7 @@ class Board(Document):
     updatee = item
     for i in range(len(self.items)):
       if updatee.id == self.items[i].id:
-        self.items[i] = updatee      
+        self.items[i] = updatee
 
   @classmethod
   def get(cls, board_id):
@@ -36,6 +36,5 @@ class Board(Document):
     if not b_str:
       return None
     b_json = json.loads(b_str)
-    print str(b_json)
     return Board(**b_json)
 
