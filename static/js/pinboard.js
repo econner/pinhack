@@ -2,7 +2,7 @@ var pins = {},
   stage = null,
   layer = null;
 
-var PADDING_PERCENTAGE = 0;
+var PADDING = 10;
 
 /** ima hide shit in pinboard **/
 var pinboard = {};
@@ -42,12 +42,12 @@ function handleMessage(message) {
 }
 
 function resizeItemGroup(itemGroup, newWidth, newHeight, shouldUpdateDragger) {
-  var fullWidth = newWidth + PADDING_PERCENTAGE * newWidth * 2;
-  var fullHeight = newHeight + PADDING_PERCENTAGE * newHeight * 2;
+  var fullWidth = newWidth + PADDING * 2;
+  var fullHeight = newHeight + PADDING * 2;
   itemGroup.get(".image")[0].setSize(newWidth, newHeight);
   itemGroup.get(".rect")[0].setSize(fullWidth, fullHeight);
   itemGroup.get(".resizeWidget")[0].setPosition(fullWidth, fullHeight);
-  itemGroup.get(".image")[0].setPosition(PADDING_PERCENTAGE * newWidth, PADDING_PERCENTAGE * newHeight);
+  itemGroup.get(".image")[0].setPosition(PADDING, PADDING);
   
   if (shouldUpdateDragger) {
     itemGroup.get(".bottomRight")[0].setPosition(fullWidth, fullHeight);
@@ -129,7 +129,7 @@ function addAnchor(group, x, y, name, item) {
   // add hover styling
   anchor.on("mouseover", function() {
     var layer = this.getLayer();
-    document.body.style.cursor = "pointer";
+    document.body.style.cursor = "se-resize";
     this.setStrokeWidth(4);
     layer.draw();
   });
@@ -215,11 +215,12 @@ function addGroupForItem(item, image) {
   var rect = new Kinetic.Rect({
     x: 0,
     y: 0,
-    width: imageWidth + PADDING_PERCENTAGE * imageWidth * 2,
-    height: imageHeight + PADDING_PERCENTAGE * imageHeight * 2,
-    fill: '#FFCCCC',
+    width: imageWidth + PADDING * 2,
+    height: imageHeight + PADDING * 2,
+    fill: 'black',
     stroke: 'black',
-    cornerRadius: 10,
+    cornerRadius: 5,
+    opacity: 0.5,
     strokeWidth: 1,
     name: "rect"
   });
@@ -227,8 +228,8 @@ function addGroupForItem(item, image) {
   
   // Main image content for the item.
   var img = new Kinetic.Image({
-    x: PADDING_PERCENTAGE * image.width,
-    y: PADDING_PERCENTAGE * image.height,
+    x: PADDING,
+    y: PADDING,
     image: image,
     width: image.width * image.item.scale,
     height: image.height * image.item.scale,
@@ -280,7 +281,6 @@ function setupLastObjectTracking(stage) {
 $(document).keyup(function (e) {
   if (e.keyCode == 46) {
       if (pinboard.current_image) {
-          console.log(pinboard.current_image);
           var image = pinboard.current_image;
           var group = image.getParent();
           var item = pinboard.current_item;
