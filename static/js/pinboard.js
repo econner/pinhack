@@ -267,6 +267,7 @@ function addGroupForItem(item, image) {
   itemGroup.on("dragstart", function() {
     this.moveToTop();
   });
+  itemGroup.moveToTop();
   stage.draw();
 }
 
