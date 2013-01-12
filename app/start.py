@@ -3,6 +3,7 @@ import tornado.httpserver
 import tornado.web
 import options
 from handlers import main_handler, api_handler, listen_handler
+from handlers import imageHandler
 
 
 class Application(tornado.web.Application):
@@ -12,6 +13,7 @@ class Application(tornado.web.Application):
             (r"/", main_handler.MainHandler),
             (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
             (r'/add_item/', api_handler.AddItemHandler),
+            (r"/image/", imageHandler.ImageHandler),
             (r'/(.*\-.*)', main_handler.BoardHandler),
         ]
         tornado.web.Application.__init__(self,

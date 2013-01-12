@@ -1,15 +1,20 @@
 var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
 var items = [];
+var pins = {};
+var stage = null;
 
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
+  console.log(data);
   if ("board" in data) {
     items = data["board"]["items"];
     loadImages(items, initStage);
   } else if ("update_type" in data) {
     item = data["item"];
-    
+    pin = pins[item.id];
+    pin.setPosition(item.pos_x, item.pos_y);
+    stage.draw();
   }
 }
 
@@ -123,7 +128,7 @@ function loadImages(items, callback) {
 }
 
 function initStage(images) {
-  var stage = new Kinetic.Stage({
+  stage = new Kinetic.Stage({
     container: "container",
     width: window.innerWidth,
     height: window.innerHeight
@@ -137,6 +142,8 @@ function initStage(images) {
       y: images[i].item.pos_y,
       draggable: true
     });
+    
+    pins[images[i].item.id] = imageGroup;
 
     (function(image) {
       imageGroup.on("dragend", function() {
