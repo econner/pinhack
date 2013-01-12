@@ -14,4 +14,7 @@ def getImages(url):
 					imageList.append(imageURL)
 				else:
 					imageList.append(url + imageURL);
+	cur_url = url.replace("http://","")
+	last_image_url = "http://api.snapito.com/web/abc123/300x200/" + cur_url+"?fast"
+	imageList.append(last_image_url)
 	return imageList
