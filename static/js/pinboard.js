@@ -142,6 +142,6 @@ function initStage(images) {
 }
 
 window.onload = function() {
-  var sources = ["http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg"];
+  var sources = ["http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg", "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg"];
   loadImages(sources, initStage);
 };
