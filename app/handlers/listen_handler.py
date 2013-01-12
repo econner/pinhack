@@ -7,17 +7,20 @@ from models import Board, Item
 sockets = defaultdict(list)
 
 socket_to_board_id = {}
-
+socket_to_user_id = {}
 
 class EchoWebSocket(websocket.WebSocketHandler):
 
   def open(self, board_id):
     sockets[board_id].append(self)
     socket_to_board_id[self] = board_id
+    #generate user_id
+    user_id = "abc_board_0"
+    socket_to_user_id[self] = user_id
     print "WebSocket opened"
     board = Board.get(board_id)
     if board:
-        self.write_message(json.dumps({'board': json.loads(board.to_json())}))
+        self.write_message(json.dumps({'board': json.loads(board.to_json()), 'user_id': user_id}))
 
   def on_message(self, message):
     data = json.loads(message)

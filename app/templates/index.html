@@ -4,7 +4,7 @@
     <title>Pinboard</title>
     <link rel="stylesheet" href="/static/css/foundation/foundation.css" type="text/css" media="all"/>
     <link rel="stylesheet" href="/static/css/foundation/app.css" type="text/css" media="all"/>
-    <link rel="stylesheet" href="/static/css/reveal.css">
+    <link rel="stylesheet" href="/static/css/reveal.css"/>
   </head>
   <body>
     <script>
@@ -26,11 +26,16 @@
 	            </a>
 	          </h1>
 	        </li>
-                <li><a>Add Image</a></li>
+                <li><a data-animation="fade" data-reveal-id="add-image-modal" id="add-image-btn">Add Image</a></li>
 	        <li class="toggle-topbar"><a href="#"></a></li>
 	      </ul>
 	    </nav>
 	</div>
+    <div id="add-image-modal" class="reveal-modal">
+     <h1>Add images</h1>
+     <div id="add-image-container"></div>
+     <a class="close-reveal-modal">&#215;</a>
+  </div>
         <div id="user_bar">
           <ul>
             <li>Marshall</li>
@@ -39,5 +44,6 @@
         </div>
 	<div id="connected-clients"></div>
 	<div id="container"></div>
+
   </body>
 </html>
