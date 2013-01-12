@@ -21,3 +21,15 @@ class AddItemHandler(tornado.web.RequestHandler):
     r.set("b_" + str(b.id), str(b.to_json()))
   def get(self):
     self.write("Write only, bud")
+    
+class RemoveItemHandler(tornado.web.RequestHandler):
+  def put(self, id = None, *args, **kwargs):
+    board_id = self.get_Argument('board_id')
+    item_id = self.get_argument('id')
+    b = Board.get_from_db(board_id)
+    for item in b.items:
+        if item_id == item.id:
+            b.items.remove(item)
+    b.save()
+  def get(self):
+    self.write("Pop chips.")
