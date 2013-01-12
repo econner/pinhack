@@ -20,6 +20,9 @@ class Board(Document):
   read_only   = UUIDField (auto_fill = True)
   items       = ListField (EmbeddedDocumentField(Item))
 
+  def put_in_db(self):
+    r.set("b_" + str(self.id), str(self.to_json()))
+
   @classmethod
   def get_from_db(cls, board_id):
     b_str = r.get("b_%s" % board_id)
