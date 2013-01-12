@@ -27,7 +27,6 @@ function formSubmit()
 		  				scale: 1, locked: true
 		  		}}).done(function() {
 		  			$("#add-image-modal").trigger('reveal:close');
-
 		  		});
 		});
 	});
