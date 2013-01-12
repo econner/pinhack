@@ -388,8 +388,8 @@ that IE7/8 do not support :nth-child.
 .button.alert { background-color: #c60f13; border: 1px solid #7f0a0c; }
 .button.alert:hover { background-color: #970b0e; }
 .button.alert:focus { -webkit-box-shadow: 0 0 4px #c60f13, 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 0 4px #c60f13, 0 1px 0 rgba(255, 255, 255, 0.5) inset; box-shadow: 0 0 4px #c60f13, 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
-.button.secondary { background-color: rgba(196, 0, 0, 0.57); color: rgb(230, 230, 230); }
-.button.secondary:hover { background-color: rgba(196, 0, 0, .8); }
+.button.secondary { background-color: rgb(196, 0, 0); color: rgb(230, 230, 230); }
+.button.secondary:hover { background-color: rgb(168, 0, 0); }
 .button.radius { -webkit-border-radius: 3px; -moz-border-radius: 3px; -ms-border-radius: 3px; -o-border-radius: 3px; border-radius: 3px; }
 .button.round { -webkit-border-radius: 1000px; -moz-border-radius: 1000px; -ms-border-radius: 1000px; -o-border-radius: 1000px; border-radius: 1000px; }
 .button.full-width { width: 100%; text-align: center; padding-left: 0px !important; padding-right: 0px !important; }

@@ -42,7 +42,7 @@
 #user_bar_background, #user_bar {
   position:fixed;
   right:40px;
-  top:100px;
+  top:55px;
   bottom: 100px;
   width:200px;
   border-radius: 7px;
@@ -58,7 +58,7 @@
 
 #add-image-btn {
   position: fixed;
-  top: 52px;
+  top: 5px;
   right: 40px;
   z-index: 4;
   border-radius: 6px;
@@ -109,5 +109,6 @@
 }
 
 #user_bar .current-user {
-  border: 2px solid yellow;
+  background-image: url("/static/images/pin_green.png");
+  padding-left: 26px;
 }
