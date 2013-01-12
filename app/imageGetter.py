@@ -7,5 +7,8 @@ def getImages(url):
 	for link in soup.find_all('img'):
 		imageURL = link.get('src')
 		if imageURL is not None:
-			imageList.append(imageURL)
+			if imageURL.startswith('http://'):
+				imageList.append(imageURL)
+			else:
+				imageList.append(url + imageURL);
 	return imageList

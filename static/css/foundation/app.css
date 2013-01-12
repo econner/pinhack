@@ -39,3 +39,27 @@
   height: 20%;
 }
 
+#user_bar {
+  position:fixed;
+  right:0px;
+  top:45px;
+  background-color:#232323;
+  height:100%;
+  width:200px;
+}
+
+#user_bar ul {
+  margin-left:10px;
+  margin-right:20px;
+  color: #cecece;
+  list-style-type: none;
+}
+
+#user_bar ul li {
+  background-image:url("/static/images/pin_green.png");
+  background-size:30px 30px;
+  background-repeat:no-repeat;
+  margin: 15px 0px 0px 10px;
+  padding: 10px 25px 10px 40px;
+  background-color: #343434;
+}
