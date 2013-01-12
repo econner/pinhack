@@ -7,13 +7,14 @@ from redis_connection import redis_conn as r
 import json
 
 class Item(EmbeddedDocument):
-  id     = UUIDField    (auto_fill  = True)
-  url    = StringField  (max_length = 300)
-  pos_x  = FloatField   ()
-  pos_y  = FloatField   ()
-  scale  = FloatField   ()
-  tags   = ListField    (StringField())
-  locked = BooleanField (default=True)
+  id        = UUIDField    (auto_fill  = True)
+  url       = StringField  (max_length = 300)
+  image_url = StringField  (max_length = 300)
+  pos_x     = FloatField   ()
+  pos_y     = FloatField   ()
+  scale     = FloatField   ()
+  tags      = ListField    (StringField())
+  locked    = BooleanField (default = True)
 
 class Board(Document):
   id          = UUIDField (auto_fill = True)
