@@ -1,37 +1,69 @@
+var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
+var items = [];
+var pins = {};
+var stage = null;
+
+socket.onmessage = handleMessage;
+function handleMessage(message) {
+  var data = $.parseJSON(message.data);
+  console.log(data);
+  if ("board" in data) {
+    items = data["board"]["items"];
+    loadImages(items, initStage);
+  } else if ("update_type" in data) {
+    item = data["item"];
+    pin = pins[item.id];
+    pin.setPosition(item.pos_x, item.pos_y);
+    stage.draw();
+  }
+}
+
 function update(group, activeAnchor) {
-  var topLeft = group.get(".topLeft")[0];
-  var topRight = group.get(".topRight")[0];
-  var bottomRight = group.get(".bottomRight")[0];
-  var bottomLeft = group.get(".bottomLeft")[0];
+  // var topLeft = group.get(".topLeft")[0];
+  // var topRight = group.get(".topRight")[0];
+  // var bottomRight = group.get(".bottomRight")[0];
+  // var bottomLeft = group.get(".bottomLeft")[0];
+  var topCenter = group.get(".topCenter")[0];
   var image = group.get(".image")[0];
 
+  topCenter.attrs.y = activeAnchor.attrs.y;
+  topCenter.attrs.x = activeAnchor.attrs.x;
   // update anchor positions
   switch (activeAnchor.getName()) {
-    case "topLeft":
-      topRight.attrs.y = activeAnchor.attrs.y;
-      bottomLeft.attrs.x = activeAnchor.attrs.x;
-      break;
-    case "topRight":
-      topLeft.attrs.y = activeAnchor.attrs.y;
-      bottomRight.attrs.x = activeAnchor.attrs.x;
-      break;
-    case "bottomRight":
-      bottomLeft.attrs.y = activeAnchor.attrs.y;
-      topRight.attrs.x = activeAnchor.attrs.x;
-      break;
-    case "bottomLeft":
-      bottomRight.attrs.y = activeAnchor.attrs.y;
-      topLeft.attrs.x = activeAnchor.attrs.x;
-      break;
+    // case "topLeft":
+    //   topRight.attrs.y = activeAnchor.attrs.y;
+    //   bottomLeft.attrs.x = activeAnchor.attrs.x;
+    //   break;
+    // case "topRight":
+    //   var yOffset = topRight.attrs.y - topLeft.attrs.y;
+    //   var xOffset = topRight.attrs.x - topLeft.attrs.x;
+    //   var angle = Math.atan(yOffset / xOffset);
+    //   image.setRotation(angle);
+
+    //   var curHeight = bottomLeft.attrs.y - topLeft.attrs.y;
+
+    //   bottomRight.attrs.x = topRight.attrs.x - yOffset;
+    //   bottomRight.attrs.y = topRight.attrs.y + curHeight;
+
+    //   break;
+    // case "bottomRight":
+    //   bottomLeft.attrs.y = activeAnchor.attrs.y;
+    //   topRight.attrs.x = activeAnchor.attrs.x;
+    //   break;
+    // case "bottomLeft":
+    //   bottomRight.attrs.y = activeAnchor.attrs.y;
+    //   topLeft.attrs.x = activeAnchor.attrs.x;
+    //   break;
   }
 
-  image.setPosition(topLeft.attrs.x, topLeft.attrs.y);
+  image.setPosition(topCenter.attrs.x, topCenter.attrs.y);
 
-  var width = topRight.attrs.x - topLeft.attrs.x;
-  var height = bottomLeft.attrs.y - topLeft.attrs.y;
-  if(width && height) {
-    image.setSize(width, height);
-  }
+  // var width = topRight.attrs.x - topLeft.attrs.x;
+  // var height = bottomLeft.attrs.y - topLeft.attrs.y;
+
+  // if(width && height && activeAnchor.getName() == "bottomRight") {
+  //   image.setSize(width, height);
+  // }
 }
 
 function addAnchor(group, x, y, name) {
@@ -44,7 +76,7 @@ function addAnchor(group, x, y, name) {
     stroke: "#666",
     fill: "#ddd",
     strokeWidth: 2,
-    radius: 8,
+    radius: 4,
     name: name,
     draggable: true
   });
@@ -77,98 +109,83 @@ function addAnchor(group, x, y, name) {
 
   group.add(anchor);
 }
-function loadImages(sources, callback) {
-  var images = {};
+
+function loadImages(items, callback) {
+  var images = [];
   var loadedImages = 0;
-  var numImages = 0;
-  for(var src in sources) {
-    numImages++;
-  }
-  for(var src in sources) {
-    images[src] = new Image();
-    images[src].onload = function() {
-      if(++loadedImages >= numImages) {
+  var numItems = items.length;
+  for(var i = 0; i < numItems; i++) {
+    var img = new Image();
+    images.push(img);
+    img.onload = function() {
+      if(++loadedImages >= numItems) {
         callback(images);
       }
     };
-    images[src].src = sources[src];
+    img.src = items[i]["image_url"];
+    img.item = items[i];
   }
 }
 
 function initStage(images) {
-  var stage = new Kinetic.Stage({
+  stage = new Kinetic.Stage({
     container: "container",
     width: window.innerWidth,
     height: window.innerHeight
   });
-  var darthVaderGroup = new Kinetic.Group({
-    x: 270,
-    y: 100,
-    draggable: true
-  });
-  var yodaGroup = new Kinetic.Group({
-    x: 100,
-    y: 110,
-    draggable: true
-  });
   var layer = new Kinetic.Layer();
-
-  /*
-   * go ahead and add the groups
-   * to the layer and the layer to the
-   * stage so that the groups have knowledge
-   * of its layer and stage
-   */
-  layer.add(darthVaderGroup);
-  layer.add(yodaGroup);
   stage.add(layer);
 
-  // darth vader
-  var darthVaderImg = new Kinetic.Image({
-    x: 0,
-    y: 0,
-    image: images.darthVader,
-    width: 200,
-    height: 138,
-    name: "image"
-  });
+  for (var i = 0; i < images.length; i++) {
+    var imageGroup = new Kinetic.Group({
+      x: images[i].item.pos_x,
+      y: images[i].item.pos_y,
+      draggable: true
+    });
+    
+    pins[images[i].item.id] = imageGroup;
 
-  darthVaderGroup.add(darthVaderImg);
-  addAnchor(darthVaderGroup, 0, 0, "topLeft");
-  addAnchor(darthVaderGroup, 200, 0, "topRight");
-  addAnchor(darthVaderGroup, 200, 138, "bottomRight");
-  addAnchor(darthVaderGroup, 0, 138, "bottomLeft");
+    (function(image) {
+      imageGroup.on("dragend", function() {
+        var position = imageGroup.getPosition();
+        image.item.pos_x = position.x;
+        image.item.pos_y = position.y;
 
-  darthVaderGroup.on("dragstart", function() {
-    this.moveToTop();
-  });
-  // yoda
-  var yodaImg = new Kinetic.Image({
-    x: 0,
-    y: 0,
-    image: images.yoda,
-    width: 93,
-    height: 104,
-    name: "image"
-  });
+        var data = {
+          "board_id": boardId,
+          "item": image.item
+        };
 
-  yodaGroup.add(yodaImg);
-  addAnchor(yodaGroup, 0, 0, "topLeft");
-  addAnchor(yodaGroup, 93, 0, "topRight");
-  addAnchor(yodaGroup, 93, 104, "bottomRight");
-  addAnchor(yodaGroup, 0, 104, "bottomLeft");
+        socket.send(JSON.stringify(data));
+      });
+    })(images[i]);
 
-  yodaGroup.on("dragstart", function() {
-    this.moveToTop();
-  });
+    /*
+     * go ahead and add the groups
+     * to the layer and the layer to the
+     * stage so that the groups have knowledge
+     * of its layer and stage
+     */
+    layer.add(imageGroup);
 
-  stage.draw();
+    var img = new Kinetic.Image({
+      x: 0,
+      y: 0,
+      image: images[i],
+      width: 200,
+      height: 138,
+      name: "image",
+    });
+    imageGroup.add(img);
+    var size = img.getSize();
+    addAnchor(imageGroup, size.width/2, 0, "topCenter");
+    // addAnchor(imageGroup, size.width, 0, "topRight");
+    // addAnchor(imageGroup, size.width, size.height, "bottomRight");
+    // addAnchor(imageGroup, 0, size.height, "bottomLeft");
+
+    imageGroup.on("dragstart", function() {
+      this.moveToTop();
+    });
+    stage.draw();
+  }
 }
-
-window.onload = function() {
-  var sources = {
-    darthVader: "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg",
-    yoda: "http://www.html5canvastutorials.com/demos/assets/yoda.jpg"
-  };
-  loadImages(sources, initStage);
-};
