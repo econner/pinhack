@@ -4,6 +4,9 @@ var pins = {};
 var stage = null;
 var layer = null
 
+/** ima hide shit in pinboard **/
+var pinboard = {};
+
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
@@ -168,11 +171,11 @@ function addImage(image) {
   pins[image.item.id] = imageGroup;
 
   (function(image) {
-    imageGroup.on("dragend", function() {
+    imageGroup.on("dragend", function(evt) {
       var position = this.getPosition();
       image.item.pos_x = position.x;
       image.item.pos_y = position.y;
-
+      pinboard.current_image = this.getChildren()[0];
       var data = {
         "board_id": boardId,
         "item": image.item
@@ -236,6 +239,37 @@ function addImage(image) {
   stage.draw();
 }
 
+function setupLastObjectTracking(stage) {
+  stage.on('click', function(evt) {
+    var shape = evt.shape;
+    console.log('Clicked on ' + shape.getName());
+    if (shape.getName() === 'image') {
+      // Store this image if we need to delete.
+      pinboard.current_image = shape;
+    }
+  });
+}
+
+$(document).keyup(function (e) {
+  if (e.keyCode == 46) {
+      if (pinboard.current_image) {
+          console.log(pinboard.current_image);
+          var image = pinboard.current_image;
+          var group = image.getParent();
+          var item = image.attrs.image.item;
+          group.removeChildren()
+          pinboard.current_image = undefined;
+          stage.draw();
+          $.ajax({
+            url: "/remove_item/",
+            type: 'PUT',
+            data: {board_id: boardId, id:item.id}}).done(function() { console.log("Really deleted."); });
+      } else {
+          console.log('Nothing to delete');
+      }
+  }
+});
+
 function initStage() {
   stage = new Kinetic.Stage({
     container: "container",
@@ -244,6 +278,25 @@ function initStage() {
   });
   layer = new Kinetic.Layer();
   stage.add(layer);
+<<<<<<< HEAD
+  
+  var imageObj = new Image();
+  imageObj.onload = function() {
+    var cork = new Kinetic.Image({
+      x: 0,
+      y: 0,
+      image: imageObj,
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    layer.add(cork);
+    stage.draw();
+  };
+  imageObj.src = 'http://www.a-gc.com/images/2012/11/textures-corkboard-HD-Wallpapers.jpg';
+=======
+  setupLastObjectTracking(stage);
+>>>>>>> e59cb74cb15dffaac9b69a4a25451a5488f9d36e
 }
+
 
 window.onload = initStage;

@@ -13,6 +13,7 @@ class Application(tornado.web.Application):
             (r"/", main_handler.MainHandler),
             (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
             (r'/add_item/', api_handler.AddItemHandler),
+            (r'/remove_item/', api_handler.RemoveItemHandler),
             (r"/image/", imageHandler.ImageHandler),
             (r'/(.*\-.*)', main_handler.BoardHandler),
         ]
