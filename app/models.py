@@ -8,8 +8,8 @@ import json
 
 class Item(EmbeddedDocument):
   id        = UUIDField    (auto_fill  = True)
-  url       = StringField  (max_length = 300)
-  image_url = StringField  (max_length = 300)
+  url       = StringField  (max_length = 2200)
+  image_url = StringField  (max_length = 2200)
   pos_x     = FloatField   ()
   pos_y     = FloatField   ()
   scale     = FloatField   ()
@@ -17,12 +17,13 @@ class Item(EmbeddedDocument):
   locked    = BooleanField (default = True)
 
 class Board(Document):
+  board_id  = StringField  (max_length = 1200)
   id          = UUIDField (auto_fill = True)
   read_only   = UUIDField (auto_fill = True)
   items       = ListField (EmbeddedDocumentField(Item))
 
   def save(self):
-    r.set("b_" + str(self.id), str(self.to_json()))
+    r.set("b_" + str(self.board_id), str(self.to_json()))
 
   def updateItem(self, item):
     updatee = item
