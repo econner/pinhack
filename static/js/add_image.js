@@ -15,7 +15,10 @@ function formSubmit()
 			$(".selected-image").removeClass('selected-image');
 			$(this).addClass('selected-image');
 		});
-		$('#select-button').show();
+		$('.tags-input').show();
+		$('#error-message').hide();
+		document.getElementById('error-message').innerHTML = "";
+
 		$("#select-button").unbind('click');
 		$("#select-button").click(function() {
 			var image_url = $('.selected-image').attr('src');
@@ -29,5 +32,12 @@ function formSubmit()
 		  			$("#add-image-modal").trigger('reveal:close');
 		  		});
 		});
+	})
+	.error(function() {
+		document.getElementById('error-message').innerHTML = "Image not found!";
+		$('.tags-input').hide();	
+		$('#error-message').show();
 	});
+
+
 }

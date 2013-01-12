@@ -6,6 +6,8 @@ def getImages(url):
 	if any(url.endswith(x) for x in ('.jpg','.gif','.jpeg')):
 		imageList.append(url)
 	else:
+		if url.startswith('http://') == False:
+			url = 'http://' + url
 		soup = BeautifulSoup(urllib.urlopen(url))
 		for link in soup.find_all('img'):
 			imageURL = link.get('src')
@@ -14,4 +16,7 @@ def getImages(url):
 					imageList.append(imageURL)
 				else:
 					imageList.append(url + imageURL);
+	cur_url = url.replace("http://","")
+	last_image_url = "http://api.snapito.com/web/abc123/300x200/" + cur_url+"?fast"
+	imageList.append(last_image_url)
 	return imageList
