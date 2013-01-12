@@ -9,7 +9,7 @@ class MainHandler(tornado.web.RequestHandler):
   def get(self):
     b = Board(id=uuid.uuid4(), read_only=uuid.uuid4())
     b.save()
-    print 'created a board'
+    print 'created a board!!!'
     self.redirect('/'+str(b.id))
 
 class BoardHandler(tornado.web.RequestHandler):

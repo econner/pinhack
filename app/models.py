@@ -23,7 +23,7 @@ class Board(Document):
 
   def save(self):
     r.set("b_" + str(self.id), str(self.to_json()))
-    
+
   def updateItem(self, item):
     updatee = item
     for i in range(len(self.items)):
@@ -33,6 +33,8 @@ class Board(Document):
   @classmethod
   def get(cls, board_id):
     b_str = r.get("b_%s" % board_id)
+    if not b_str:
+      return None
     b_json = json.loads(b_str)
     print str(b_json)
     return Board(**b_json)
