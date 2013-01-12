@@ -28,17 +28,14 @@ function handleMessage(message) {
     } else if (data["update_type"] == "remove_item") {
       removeItem(data["item_id"]);
     } else if (data["update_type"] == "draw") {
-      console.log("what");
-      var circle = new Kinetic.Circle({
-        x: data.x,
-        y: data.y,
-        stroke: "#000",
-        fill: "#000",
-        opacity: 1,
-        strokeWidth: 2,
-        radius: 12,
+      var line = new Kinetic.Line({
+        points: [data.x - data.dx, data.y - data.dy, data.x, data.y],
+        stroke: 'black',
+        strokeWidth: 15,
+        lineCap: 'round',
+        lineJoin: 'round'
       });
-      layer.add(circle);
+      layer.add(line);
       stage.draw();
     } else {
       var updatedItem = data["item"];
@@ -394,22 +391,23 @@ function initStage() {
 
   stage.on('mousemove', function(evt) {
     if (mouseDown && !itemSelected) {
-      var circle = new Kinetic.Circle({
-        x: evt.layerX,
-        y: evt.layerY,
-        stroke: "#000",
-        fill: "#000",
-        opacity: 1,
-        strokeWidth: 2,
-        radius: 12,
+      var line = new Kinetic.Line({
+        points: [evt.layerX - evt.webkitMovementX, evt.layerY - evt.webkitMovementY, evt.layerX, evt.layerY],
+        stroke: 'black',
+        strokeWidth: 15,
+        lineCap: 'round',
+        lineJoin: 'round'
       });
-      layer.add(circle);
+      layer.add(line);
       stage.draw();
       data = {
         "board_id": boardId,
         "update_type": "draw",
         "x": evt.layerX,
-        "y": evt.layerY}
+        "y": evt.layerY,
+        "dx": evt.webkitMovementX,
+        "dy": evt.webkitMovementY,
+        }
       sendDrawMessage(data);
     }
   });
