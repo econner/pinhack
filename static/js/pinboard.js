@@ -177,8 +177,8 @@ function addPinImage(group) {
       name: "pin_image",
     });
     
-    group.add(kineticImage);
-    stage.draw();
+    //group.add(kineticImage);
+    //stage.draw();
   };
   img.src = "/static/images/pin_green.png";
 }
