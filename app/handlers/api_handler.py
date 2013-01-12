@@ -3,6 +3,7 @@ import tornado.web
 from models import Item, Board
 import uuid
 import json
+from listen_handler import sockets
 
 class AddItemHandler(tornado.web.RequestHandler):
   def put(self, id = None, *args, **kwargs):
@@ -19,7 +20,10 @@ class AddItemHandler(tornado.web.RequestHandler):
     b = Board.get(board_id)
     b.items.append(item)
     b.save()
+
   def get(self):
+    for socket in sockets:
+        socket.write_message("SENT A MESSAGE")
     self.write("Write only, bud")
 
 class RemoveItemHandler(tornado.web.RequestHandler):
