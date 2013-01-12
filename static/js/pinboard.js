@@ -223,6 +223,20 @@ function initStage() {
   });
   layer = new Kinetic.Layer();
   stage.add(layer);
+  
+  var imageObj = new Image();
+  imageObj.onload = function() {
+    var cork = new Kinetic.Image({
+      x: 0,
+      y: 0,
+      image: imageObj,
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    layer.add(cork);
+    stage.draw();
+  };
+  imageObj.src = 'http://www.a-gc.com/images/2012/11/textures-corkboard-HD-Wallpapers.jpg';
 }
 
 window.onload = initStage;
