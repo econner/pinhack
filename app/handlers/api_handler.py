@@ -20,7 +20,7 @@ class AddItemHandler(tornado.web.RequestHandler):
     b = Board.get(board_id)
     b.items.append(item)
     b.save()
-    
+
     data = {'update_type': 'add_item', 'item': json.loads(item.to_json())}
     for socket in sockets[board_id]:
         socket.write_message(json.dumps(data))
@@ -31,13 +31,14 @@ class AddItemHandler(tornado.web.RequestHandler):
     self.write("Write only, bud")
 
 class RemoveItemHandler(tornado.web.RequestHandler):
-  def put(self, id = None, *args, **kwargs):
+  def put(self):
     board_id = self.get_argument('board_id')
     item_id = self.get_argument('id')
     b = Board.get(board_id)
     for item in b.items:
-        if item_id == item.id:
+        if item_id == str(item.id):
             b.items.remove(item)
     b.save()
+
   def get(self):
     self.write("Pop chips.")
