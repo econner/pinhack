@@ -7,10 +7,11 @@ from models import Item, Board
 
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
-    b = Board(id=uuid.uuid4(), read_only=uuid.uuid4())
+    board_id = uuid.uuid4().hex[:8]
+    b = Board(id=uuid.uuid4(), board_id=board_id, read_only=uuid.uuid4())
     b.save()
     print 'created a board!!!'
-    self.redirect('/'+str(b.id))
+    self.redirect('/'+str(b.board_id))
 
 class BoardHandler(tornado.web.RequestHandler):
   def get(self, board_id):

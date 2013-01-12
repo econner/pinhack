@@ -27,11 +27,11 @@ function handleMessage(message) {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
       var originalItem = pins[updatedItem.id].item;
-      
+
       // Update position and scale.
       itemGroup.setPosition(updatedItem.pos_x, updatedItem.pos_y);
       var scale = updatedItem.scale;
-      
+
       var newWidth = originalItem.original_width * scale;
       var newHeight = originalItem.original_height * scale;
       resizeItemGroup(itemGroup, newWidth, newHeight, true);
@@ -48,7 +48,7 @@ function resizeItemGroup(itemGroup, newWidth, newHeight, shouldUpdateDragger) {
   itemGroup.get(".rect")[0].setSize(fullWidth, fullHeight);
   itemGroup.get(".resizeWidget")[0].setPosition(fullWidth, fullHeight);
   itemGroup.get(".image")[0].setPosition(PADDING, PADDING);
-  
+
   if (shouldUpdateDragger) {
     itemGroup.get(".bottomRight")[0].setPosition(fullWidth, fullHeight);
   }
@@ -181,10 +181,10 @@ function sendItemUpdate(group, item) {
   var position = group.getPosition();
   item.pos_x = position.x;
   item.pos_y = position.y;
-  
+
   var width = group.get(".image")[0].getSize().width;
   item.scale = width / item.original_width;
-  
+
   var data = {
     "board_id": boardId,
     "item": item
@@ -197,13 +197,13 @@ function addGroupForItem(item, image) {
   // Update the item's data.
   item.original_width = image.width;
   item.original_height = image.height;
-  
+
   var itemGroup = new Kinetic.Group({
     x: item.pos_x,
     y: item.pos_y,
     draggable: true
   });
-  
+
   // Map the item id to the data.
   pins[item.id] = {
     "item": item,
@@ -244,7 +244,7 @@ function addGroupForItem(item, image) {
     name: "rect"
   });
   itemGroup.add(rect);
-  
+
   // Main image content for the item.
   var img = new Kinetic.Image({
     x: PADDING,
@@ -255,7 +255,7 @@ function addGroupForItem(item, image) {
     name: "image",
   });
   itemGroup.add(img);
-  
+
   var size = rect.getSize();
   addResizeWidget(itemGroup, size.width, size.height);
   addAnchor(itemGroup, 0, 0, "topLeft", item);
@@ -279,7 +279,7 @@ function addItems(items) {
 
 function addItem(item) {
   var img = new Image();
-  
+
   (function(item, img) {
     img.onload = function() {
       addGroupForItem(item, img);
@@ -294,6 +294,15 @@ function setupLastObjectTracking(stage) {
     if (shape.getName() === 'image') {
       // Store this image if we need to delete.
       pinboard.current_image = shape;
+    }
+  });
+
+  stage.on('dblclick', function(evt) {
+    var shape = evt.shape;
+    if (shape.getName() === 'image') {
+      var url = shape.getImage().item.url
+      window.open(url, '_blank');
+      window.focus();
     }
   });
 }
@@ -325,7 +334,7 @@ function initStage() {
   });
   layer = new Kinetic.Layer();
   stage.add(layer);
-  
+
   var imageObj = new Image();
   imageObj.onload = function() {
     var cork = new Kinetic.Image({
@@ -338,8 +347,10 @@ function initStage() {
     layer.add(cork);
     stage.draw();
   };
+
   imageObj.src = '/static/images/cork.jpg';
   setupLastObjectTracking(stage);
+
 }
 
 

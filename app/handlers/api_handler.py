@@ -39,6 +39,9 @@ class RemoveItemHandler(tornado.web.RequestHandler):
         if item_id == str(item.id):
             b.items.remove(item)
     b.save()
+    data = {'update_type': 'remote_item', 'item_id': item_id}
+    for socket in sockets[board_id]:
+        socket.write_message(json.dumps(data))
 
   def get(self):
     self.write("Pop chips.")

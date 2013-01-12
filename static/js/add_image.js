@@ -5,7 +5,7 @@ $(function() {
 function formSubmit()
 {
 	url = document.getElementById("url").value;
-	link = 'http://localhost:7100/image/?url=' + url;
+	link = '/image/?url=' + url;
 	$("#images").html("");
 	$.getJSON(link, function(data) {
 		$.each(data, function(i,item){
@@ -22,12 +22,11 @@ function formSubmit()
 			$.ajax({
 		  		url: "/add_item/",
 		  		type: 'PUT',
-		  		data: {board_id: boardId, url: 'http://www.aol.com/',
+		  		data: {board_id: boardId, url: url,
 		  				image_url: image_url, tags: [''], pos_x: 100, pos_y: 200,
 		  				scale: 1, locked: true
 		  		}}).done(function() {
 		  			$("#add-image-modal").trigger('reveal:close');
-
 		  		});
 		});
 	});

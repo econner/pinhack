@@ -4,12 +4,12 @@
 var UserDisplay = (function() {
 
 	var renderUserDisplay = function(users_connected) {
-		$('#user_bar').html("");
+		$('#user_list').html("");
 		var user_display = $('<ul></ul>');
 		$.each(users_connected, function(idx, val) {
 			user_display.append('<li>' + val + '</li>');
 		});
-		$('#user_bar').append(user_display);
+		$('#user_list').append(user_display);
 	};
 
 	var render = function(users_connected) {

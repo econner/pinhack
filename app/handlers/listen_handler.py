@@ -53,7 +53,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
         "update_type": "pos_change",
         "item": json.loads(item.to_json())
     }
-    self.broad_cast(board_id, broadcastData)
+    self.broad_cast(board_id, broadcastData, write_to_self=False)
     #for socket in sockets[board_id]:
        #socket.write_message(broadcastData)
 
@@ -69,7 +69,8 @@ class EchoWebSocket(websocket.WebSocketHandler):
     del socket_to_board_id[self]
     del socket_to_user_id[self]
 
-  def broad_cast(self, board_id, message):
+  def broad_cast(self, board_id, message, write_to_self=True):
     print sockets
     for socket in sockets[board_id]:
-    	socket.write_message(message)
+        if socket is not self or write_to_self:
+            socket.write_message(message)
