@@ -40,9 +40,6 @@ class EchoWebSocket(websocket.WebSocketHandler):
         self.broad_cast(board_id, json.dumps({
             'users_connected': users[board_id]
         }))
-    #self.write_message(json.dumps({'board': json.loads(board.to_json()), 'user_id': user_id}))
-    #self.write_message(broadcastData)
-
 
   def on_message(self, message):
     data = json.loads(message)
@@ -73,6 +70,6 @@ class EchoWebSocket(websocket.WebSocketHandler):
     del socket_to_user_id[self]
 
   def broad_cast(self, board_id, message):
-    print sockets[board_id]
+    print sockets
     for socket in sockets[board_id]:
     	socket.write_message(message)
