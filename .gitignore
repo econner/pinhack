@@ -4,3 +4,4 @@ pinhack_env
 .DS_Store
 *.swp
 redis-2.6.8
+*~
