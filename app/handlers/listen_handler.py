@@ -6,7 +6,7 @@ from models import Board
 class EchoWebSocket(websocket.WebSocketHandler):
   def open(self, board_id):
     board = Board.get(board_id)
-    self.write_message(json.dumps({'board': board.to_json()}))
+    self.write_message(json.dumps({'board': board}))
 
   def on_message(self, message):
     print 'message received %s' % message
