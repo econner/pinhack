@@ -1,3 +1,21 @@
+var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
+var sources = [];
+
+socket.onmessage = handleMessage;
+console.log("here");
+function handleMessage(message) {
+  var data = $.parseJSON(message.data);
+  if ("board" in data) {
+    var items = data["board"]["items"];
+    console.log(items);
+    for (var i = 0; i < items.length; i++) {
+      sources.push(items[i]["image_url"]);
+    }
+    loadImages(sources, initStage);
+  }
+  
+}
+
 function update(group, activeAnchor) {
   var topLeft = group.get(".topLeft")[0];
   var topRight = group.get(".topRight")[0];
@@ -86,6 +104,7 @@ function addAnchor(group, x, y, name) {
 
   group.add(anchor);
 }
+
 function loadImages(sources, callback) {
   var images = [];
   var loadedImages = 0;
@@ -151,6 +170,4 @@ function initStage(images) {
 }
 
 window.onload = function() {
-  var sources = ["http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg", "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg"];
-  loadImages(sources, initStage);
 };
