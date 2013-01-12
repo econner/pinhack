@@ -172,8 +172,8 @@ function addPinImage(group) {
       x: -10,
       y: -20,
       image: img,
-      width: 50,
-      height: 50,
+      width: 30,
+      height: 30,
       name: "pin_image",
     });
     
