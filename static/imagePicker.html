@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<style>
+<style>
 	.selectable-image {
 		max-height:150px;
 		max-width:150px;
@@ -15,17 +12,23 @@
 	}
 	#images {
 		overflow-y: scroll;
-		max-height: 400px;
-	}
-	</style>
-</head>
-<body>
-	<p>Enter the url in the field below, then press the "Submit" button to get images.</p>
-
-		url: <input type="text" id="url" name="url"><br><br>
-		<input type="button" onclick="formSubmit()" value="Find images">
-			<button id="select-button" style="display: none">Use</button>
+        max-height: 350px;
+        background-color: rgba(0,0,0,0.02);
+    }
+    .url-input #url {
+        width:77%;
+        display:inline-block;
+    }
+    .url-input button {
+        height: 30px;
+    }
+</style>
+	<p class="url-input">Enter an url to find images
+        <input type="text" id="url" name="url">
+        <button onclick="formSubmit()">Find images</button>
+    </p>
+    <p>
+        <button id="select-button" style="display: none">Use</button>
+    </p>
 	<div id="images"></div>
-</body>
-</html>
 

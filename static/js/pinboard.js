@@ -7,6 +7,10 @@ var layer = null
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
+  if ("users_connected" in data) {
+    UserDisplay.render(data['users_connected']);
+  }
+
   if ("board" in data) {
     items = data["board"]["items"];
     loadImages(items);
@@ -34,7 +38,7 @@ function update(group, activeAnchor) {
   var bottomRight = group.get(".bottomRight")[0];
   var bottomLeft = group.get(".bottomLeft")[0];
   var resizeWidget = group.get(".resizeWidget")[0];
-  
+
   var image = group.get(".image")[0];
 
   // update anchor positions
@@ -127,7 +131,7 @@ function addResizeWidget(group, x, y) {
     radius: 4,
     name: "resizeWidget",
   });
-  
+
   group.add(anchor);
 }
 
@@ -150,7 +154,7 @@ function addImage(image) {
     y: image.item.pos_y,
     draggable: true
   });
-  
+
   pins[image.item.id] = imageGroup;
 
   (function(image) {
@@ -158,7 +162,7 @@ function addImage(image) {
       var position = this.getPosition();
       image.item.pos_x = position.x;
       image.item.pos_y = position.y;
-      
+
       var data = {
         "board_id": boardId,
         "item": image.item
@@ -166,14 +170,14 @@ function addImage(image) {
 
       socket.send(JSON.stringify(data));
     });
-    
+
     imageGroup.on("dragmove", function() {
       var currentTime = new Date()
       if (currentTime.getTime() % 5 == 0) {
         var position = this.getPosition();
         image.item.pos_x = position.x;
         image.item.pos_y = position.y;
-        
+
         var data = {
           "board_id": boardId,
           "item": image.item
@@ -182,7 +186,7 @@ function addImage(image) {
         socket.send(JSON.stringify(data));
       }
     });
-    
+
   })(image);
 
   /*

@@ -16,6 +16,7 @@ function formSubmit()
 			$(this).addClass('selected-image');
 		});
 		$('#select-button').show();
+		$("#select-button").unbind('click');
 		$("#select-button").click(function() {
 			var image_url = $('.selected-image').attr('src');
 			$.ajax({
