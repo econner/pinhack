@@ -2,11 +2,16 @@ var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
 var items = [];
 var pins = {};
 var stage = null;
-var layer = null
+var layer = null;
 
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
+  if ("user_id" in data) {
+    console.info("NEW USER " + data['user_id'] + " CONNECTED.");
+    UserDisplay.addUser(data['user_id']);
+  }
+
   if ("board" in data) {
     items = data["board"]["items"];
     loadImages(items, initStage);
@@ -24,7 +29,7 @@ function update(group, activeAnchor) {
   var bottomRight = group.get(".bottomRight")[0];
   var bottomLeft = group.get(".bottomLeft")[0];
   var resizeWidget = group.get(".resizeWidget")[0];
-  
+
   var image = group.get(".image")[0];
 
   // update anchor positions
@@ -117,7 +122,7 @@ function addResizeWidget(group, x, y) {
     radius: 4,
     name: "resizeWidget",
   });
-  
+
   group.add(anchor);
 }
 
@@ -154,7 +159,7 @@ function initStage(images) {
       y: images[i].item.pos_y,
       draggable: true
     });
-    
+
     pins[images[i].item.id] = imageGroup;
 
     (function(image) {
@@ -170,14 +175,14 @@ function initStage(images) {
 
         socket.send(JSON.stringify(data));
       });
-      
+
       imageGroup.on("dragmove", function() {
         var currentTime = new Date()
         if (currentTime.getTime() % 5 == 0) {
           var position = imageGroup.getPosition();
           image.item.pos_x = position.x;
           image.item.pos_y = position.y;
-          
+
           var data = {
             "board_id": boardId,
             "item": image.item
@@ -186,7 +191,7 @@ function initStage(images) {
           socket.send(JSON.stringify(data));
         }
       });
-      
+
     })(images[i]);
 
     /*
