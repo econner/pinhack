@@ -14,8 +14,9 @@ class Application(tornado.web.Application):
             }),
             (r'/ws/(.*)', listen_handler.EchoWebSocket),
             (r"/", main_handler.MainHandler),
-            (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
-
+            (r'/static/(.*)', tornado.web.StaticFileHandler, {
+                'path': 'static/'
+            }),
             (r'/add_item/', api_handler.AddItemHandler),
             (r'/remove_item/', api_handler.RemoveItemHandler),
             (r"/image/", imageHandler.ImageHandler),
