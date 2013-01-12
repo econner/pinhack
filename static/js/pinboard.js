@@ -2,7 +2,9 @@ var pins = {},
   stage = null,
   layer = null,
   mouseDown = false,
-  itemSelected = false;
+  itemSelected = false,
+  widthInc = window.innerWidth,
+  heightInc = window.innerHeight;
 
 var PADDING = 10;
 
@@ -141,7 +143,7 @@ function addAnchor(group, x, y, name, item) {
   anchor.on("dragstart", function() {
     itemSelected = true;
   });
-  
+
   anchor.on("dragend", function() {
     group.setDraggable(true);
     var size = group.get(".image")[0].getSize();
@@ -182,7 +184,7 @@ function addResizeWidget(group, x, y) {
 
 function addPinImage(group) {
   var img = new Image();
-  
+
   img.onload = function() {
     var kineticImage = new Kinetic.Image({
       x: -10,
@@ -192,7 +194,7 @@ function addPinImage(group) {
       height: 30,
       name: "pin_image",
     });
-    
+
     //group.add(kineticImage);
     //stage.draw();
   };
@@ -237,7 +239,7 @@ function addGroupForItem(item, image) {
     itemGroup.on("dragstart", function(evt) {
       itemSelected = true;
     });
-    
+
     itemGroup.on("dragend", function(evt) {
       sendItemUpdate(this, item);
       pinboard.current_image = this.getChildren()[0];
@@ -249,6 +251,56 @@ function addGroupForItem(item, image) {
       var currentTime = new Date()
       if (currentTime.getTime() % 2 == 0) {
         sendItemUpdate(this, item);
+      }
+      console.log(item.pos_x + " " + (stage.getWidth() - 200));
+      if(item.pos_x > stage.getWidth() - 200){
+        console.log('increase stage width');
+        stage.setWidth(stage.getWidth()+ widthInc);
+
+        layer = new Kinetic.Layer();
+        stage.add(layer);
+
+        var imageObj = new Image();
+        imageObj.onload = function() {
+          var cork = new Kinetic.Image({
+            x: stage.getWidth()-widthInc,
+              y: 0,
+              image: imageObj,
+              width: window.innerWidth,
+              height: window.innerHeight
+          });
+          layer.add(cork);
+          stage.draw();
+        };
+
+        imageObj.src = '/static/images/cork.jpg';
+
+        $('document').scrollLeft = $('.left').width()
+      }
+      if(item.pos_y > stage.getHeight() - 200){
+        console.log('increase stage width');
+        stage.setHeight(stage.getHeight()+heightInc);
+
+        layer = new Kinetic.Layer();
+        stage.add(layer);
+
+        var imageObj = new Image();
+        imageObj.onload = function() {
+          var cork = new Kinetic.Image({
+            x: 0,
+            y: stage.getHeight()-heightInc,
+            image: imageObj,
+            width: window.innerWidth,
+            height: window.innerHeight
+          });
+          layer.add(cork);
+          layer.moveToBottom();
+          stage.draw();
+        };
+
+        imageObj.src = '/static/images/cork.jpg';
+
+        $('document').scrollLeft = $('.left').width()
       }
     });
   })(image, item);
