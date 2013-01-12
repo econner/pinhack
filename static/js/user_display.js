@@ -61,3 +61,17 @@ var UserDisplay = (function() {
 		checkForUsername: checkForUsername
 	};
 })();
+
+
+$(function() {
+    var saveBoardTitle = function() {
+        var text = $('#pinners').html();
+        var data = {
+          'message_type': 'board_name_update',
+          'name': text,
+          'board_id': boardId
+        };
+        socket.send(JSON.stringify(data));
+    };
+    $('#pinners').blur(saveBoardTitle);
+});

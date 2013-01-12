@@ -1,6 +1,9 @@
 var pins = {},
   stage = null,
-  layer = null;
+  layer = null,
+  mouseDown = false,
+  itemSelected = false,
+  pointBatch = [];
 
 var PADDING = 10;
 
@@ -11,20 +14,43 @@ $(document).ready(function() {
   socket.onmessage = handleMessage;
 });
 
+function updateBoardName(name) {
+  pinboard.name = name || "Pinboard";
+  $("#pinners").html(pinboard.name);
+}
+
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("users_connected" in data) {
     UserDisplay.render(data);
   }
+  console.log(message);
 
   if ("board" in data) {
     var items = data["board"]["items"];
+    updateBoardName(data["board"]["name"]);
     addItems(items);
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
       addItem(data["item"]);
     } else if (data["update_type"] == "remove_item") {
       removeItem(data["item_id"]);
+    } else if (data["update_type"] == "draw") {
+      var points = data["points"];
+      for (var i = 0; i < points.length; i++) {
+        var point = points[i];
+        var line = new Kinetic.Line({
+          points: [point.x - point.dx, point.y - point.dy, point.x, point.y],
+          stroke: 'black',
+          strokeWidth: 15,
+          lineCap: 'round',
+          lineJoin: 'round'
+        });
+        layer.add(line);
+        stage.draw();
+      }
+    } else if (data["update_type"] == "board_name_update") {
+      updateBoardName(data["name"]);
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -41,6 +67,7 @@ function handleMessage(message) {
       stage.draw();
     }
   }
+
 }
 
 function resizeItemGroup(itemGroup, newWidth, newHeight, shouldUpdateDragger) {
@@ -118,7 +145,6 @@ function addAnchor(group, x, y, name, item) {
     update(group, this, item);
     var currentTime = new Date()
     if (currentTime.getTime() % 2 == 0) {
-      console.log("yo");
       sendItemUpdate(group, item);
     }
     layer.draw();
@@ -127,11 +153,16 @@ function addAnchor(group, x, y, name, item) {
     group.setDraggable(false);
     this.moveToTop();
   });
+  anchor.on("dragstart", function() {
+    itemSelected = true;
+  });
+
   anchor.on("dragend", function() {
     group.setDraggable(true);
     var size = group.get(".image")[0].getSize();
     resizeItemGroup(group, size.width, size.height, true);
     layer.draw();
+    itemSelected = false;
   });
   // add hover styling
   anchor.on("mouseover", function() {
@@ -166,7 +197,7 @@ function addResizeWidget(group, x, y) {
 
 function addPinImage(group) {
   var img = new Image();
-  
+
   img.onload = function() {
     var kineticImage = new Kinetic.Image({
       x: -10,
@@ -176,7 +207,8 @@ function addPinImage(group) {
       height: 30,
       name: "pin_image",
     });
-    
+
+    //urgg
     //group.add(kineticImage);
     //stage.draw();
   };
@@ -218,10 +250,15 @@ function addGroupForItem(item, image) {
   };
 
   (function(image, item) {
+    itemGroup.on("dragstart", function(evt) {
+      itemSelected = true;
+    });
+
     itemGroup.on("dragend", function(evt) {
       sendItemUpdate(this, item);
       pinboard.current_image = this.getChildren()[0];
       pinboard.current_item = item;
+      itemSelected = false;
     });
 
     itemGroup.on("dragmove", function() {
@@ -360,7 +397,43 @@ function initStage() {
   imageObj.src = '/static/images/cork.jpg';
   setupLastObjectTracking(stage);
 
+  stage.on('mousedown', function(evt) {
+    mouseDown = true;
+  });
+
+  stage.on('mouseup', function(evt) {
+    mouseDown = false;
+  });
+
+  stage.on('mousemove', function(evt) {
+    if (mouseDown && !itemSelected) {
+      var line = new Kinetic.Line({
+        points: [evt.layerX - evt.webkitMovementX, evt.layerY - evt.webkitMovementY, evt.layerX, evt.layerY],
+        stroke: 'black',
+        strokeWidth: 15,
+        lineCap: 'round',
+        lineJoin: 'round'
+      });
+      layer.add(line);
+      stage.draw();
+      data = {
+        "x": evt.layerX,
+        "y": evt.layerY,
+        "dx": evt.webkitMovementX,
+        "dy": evt.webkitMovementY,
+      }
+      pointBatch.push(data)
+      if (pointBatch.length == 5) {
+        sendDrawMessage();
+      }
+    }
+  });
 }
 
+function sendDrawMessage() {
+  var data = {"update_type": "draw", "points": pointBatch, "board_id": boardId};
+  socket.send(JSON.stringify(data));
+  pointBatch = [];
+}
 
 window.onload = initStage;
