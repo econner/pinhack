@@ -14,9 +14,10 @@ class EchoWebSocket(websocket.WebSocketHandler):
   def open(self, board_id):
     sockets[board_id].append(self)
     socket_to_board_id[self] = board_id
-    board = Board.get(board_id)
-    self.write_message(json.dumps({'board': json.loads(board.to_json())}))
     print "WebSocket opened"
+    board = Board.get(board_id)
+    if board:
+        self.write_message(json.dumps({'board': json.loads(board.to_json())}))
 
   def on_message(self, message):
     # TODO: deserialize the message, get the board id, and process msg
