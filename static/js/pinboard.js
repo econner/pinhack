@@ -7,9 +7,9 @@ var layer = null;
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
-  if ("user_id" in data) {
+  if ("users_connected" in data) {
     console.info("NEW USER " + data['user_id'] + " CONNECTED.");
-    UserDisplay.addUser(data['user_id']);
+    UserDisplay.render(data['users_connected']);
   }
 
   if ("board" in data) {
