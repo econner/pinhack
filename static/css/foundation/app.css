@@ -58,14 +58,16 @@
 
 #add-image-btn {
   position: fixed;
-  top: 5px;
+  top: 52px;
   right: 40px;
   z-index: 4;
+  border-radius: 6px;
 }
 
 #pinners {
-  font-size: 40px;
+  font-size: 35px;
   color: white;
+  text-align:center;
 }
 
 .top-bar{
@@ -91,9 +93,10 @@
 #user_bar ul {
   margin-left:10px;
   margin-right:20px;
-  color: #cecece;
+  color: rgb(230, 230, 230);
   list-style-type: none;
   margin-top: 5px;
+  font-weight: lighter;
 }
 
 #user_bar ul li {
@@ -101,6 +104,6 @@
   background-size:30px 30px;
   background-repeat:no-repeat;
   border-radius: 5px;
-  font-weight: thin;
+  font-weight: lighter;
   font-size: 20px;
 }
