@@ -10,7 +10,7 @@ class AddItemHandler(tornado.web.RequestHandler):
     board_id  = self.get_argument('board_id')
     url       = self.get_argument('url')
     image_url = self.get_argument('image_url')
-    tags      = self.get_argument('tags')
+    tags      = self.get_argument('tags', [])
     pos_x     = self.get_argument('pos_x')
     pos_y     = self.get_argument('pos_y')
     scale     = self.get_argument('scale')
