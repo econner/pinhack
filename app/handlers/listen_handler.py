@@ -22,12 +22,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
             if user_id not in socket_to_user_id.values():
                 return user_id
 
-    def _broadcast_user_display(self, board_id):
-        for socket in sockets[board_id]:
-            self.safe_write_to_socket(socket, json.dumps({
-                'users_connected': users[board_id],
-                'current_user': socket_to_user_id[socket]
-            }))
+
 
     def _update_user(self, board_id, new_user_id):
         old_user_id = socket_to_user_id.get(self)
@@ -101,20 +96,29 @@ class EchoWebSocket(websocket.WebSocketHandler):
             if socket is not self or write_to_self:
                 self.safe_write_to_socket(socket, message)
 
-    def _remove_socket(self, socket):
+    @classmethod
+    def _broadcast_user_display(cls, board_id):
+        for socket in sockets[board_id]:
+            cls.safe_write_to_socket(socket, json.dumps({
+                'users_connected': users[board_id],
+                'current_user': socket_to_user_id[socket]
+            }))
+
+    @classmethod
+    def _remove_socket(cls, socket):
         board_id = socket_to_board_id.get(socket)
         user_id = socket_to_user_id.get(socket)
         users[board_id].remove(user_id)
         sockets[board_id].remove(socket)
-        self._broadcast_user_display(board_id)
+        cls._broadcast_user_display(board_id)
         del socket_to_board_id[socket]
         del socket_to_user_id[socket]
 
     @classmethod
-    def safe_write_to_socket(self, socket, message):
+    def safe_write_to_socket(cls, socket, message):
         try:
             socket.write_message(message)
         except Exception:
             print "FAILED TO WRITE TO SOCKET!"
-            self._remove_socket(self)
+            cls._remove_socket(socket)
 
