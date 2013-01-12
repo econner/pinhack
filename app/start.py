@@ -9,13 +9,13 @@ from handlers import imageHandler
 class Application(tornado.web.Application):
     def __init__(self):
         url_handlers = [
-            (r'/ws/(.*\-.*)', listen_handler.EchoWebSocket),
+            (r'/ws/(.*)', listen_handler.EchoWebSocket),
             (r"/", main_handler.MainHandler),
             (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
             (r'/add_item/', api_handler.AddItemHandler),
             (r'/remove_item/', api_handler.RemoveItemHandler),
             (r"/image/", imageHandler.ImageHandler),
-            (r'/(.*\-.*)', main_handler.BoardHandler),
+            (r'/(.*)', main_handler.BoardHandler),
         ]
         tornado.web.Application.__init__(self,
                                          url_handlers,
