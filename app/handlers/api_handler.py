@@ -24,7 +24,7 @@ class AddItemHandler(tornado.web.RequestHandler):
     
 class RemoveItemHandler(tornado.web.RequestHandler):
   def put(self, id = None, *args, **kwargs):
-    board_id = self.get_Argument('board_id')
+    board_id = self.get_argument('board_id')
     item_id = self.get_argument('id')
     b = Board.get_from_db(board_id)
     for item in b.items:
