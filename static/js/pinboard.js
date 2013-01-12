@@ -1,13 +1,16 @@
-var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
-var items = [];
-var pins = {};
-var stage = null;
-var layer = null
+var pins = {},
+  stage = null,
+  layer = null;
+
+var PADDING = 10;
 
 /** ima hide shit in pinboard **/
 var pinboard = {};
 
-socket.onmessage = handleMessage;
+$(document).ready(function() {
+  socket.onmessage = handleMessage;
+});
+
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("users_connected" in data) {
@@ -15,27 +18,43 @@ function handleMessage(message) {
   }
 
   if ("board" in data) {
-    items = data["board"]["items"];
-    loadImages(items);
+    var items = data["board"]["items"];
+    addItems(items);
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
-      item = data["item"];
-      var img = new Image();
-      img.onload = function() {
-        addImage(img);
-      };
-      img.src = item["image_url"];
-      img.item = item;
+      addItem(data["item"]);
     } else {
-      item = data["item"];
-      pin = pins[item.id];
-      pin.setPosition(item.pos_x, item.pos_y);
+      var updatedItem = data["item"];
+      var itemGroup = pins[updatedItem.id].group;
+      var originalItem = pins[updatedItem.id].item;
+      
+      // Update position and scale.
+      itemGroup.setPosition(updatedItem.pos_x, updatedItem.pos_y);
+      var scale = updatedItem.scale;
+      
+      var newWidth = originalItem.original_width * scale;
+      var newHeight = originalItem.original_height * scale;
+      resizeItemGroup(itemGroup, newWidth, newHeight, true);
+
       stage.draw();
     }
   }
 }
 
-function update(group, activeAnchor) {
+function resizeItemGroup(itemGroup, newWidth, newHeight, shouldUpdateDragger) {
+  var fullWidth = newWidth + PADDING * 2;
+  var fullHeight = newHeight + PADDING * 2;
+  itemGroup.get(".image")[0].setSize(newWidth, newHeight);
+  itemGroup.get(".rect")[0].setSize(fullWidth, fullHeight);
+  itemGroup.get(".resizeWidget")[0].setPosition(fullWidth, fullHeight);
+  itemGroup.get(".image")[0].setPosition(PADDING, PADDING);
+  
+  if (shouldUpdateDragger) {
+    itemGroup.get(".bottomRight")[0].setPosition(fullWidth, fullHeight);
+  }
+}
+
+function update(group, activeAnchor, item) {
   var topLeft = group.get(".topLeft")[0];
   var topRight = group.get(".topRight")[0];
   var bottomRight = group.get(".bottomRight")[0];
@@ -72,12 +91,12 @@ function update(group, activeAnchor) {
   var width = topRight.attrs.x - topLeft.attrs.x;
   var height = width / aspectRatio;
   if(width && height) {
-    image.setSize(width, height);
-    resizeWidget.setPosition(width, height);
+    item.scale = width / item.original_width;
+    resizeItemGroup(group, width, height, false);
   }
 }
 
-function addAnchor(group, x, y, name) {
+function addAnchor(group, x, y, name, item) {
   var stage = group.getStage();
   var layer = group.getLayer();
 
@@ -94,7 +113,7 @@ function addAnchor(group, x, y, name) {
   });
 
   anchor.on("dragmove", function() {
-    update(group, this);
+    update(group, this, item);
     layer.draw();
   });
   anchor.on("mousedown touchstart", function() {
@@ -104,13 +123,13 @@ function addAnchor(group, x, y, name) {
   anchor.on("dragend", function() {
     group.setDraggable(true);
     var size = group.get(".image")[0].getSize();
-    anchor.setPosition(size.width, size.height);
+    resizeItemGroup(group, size.width, size.height, true);
     layer.draw();
   });
   // add hover styling
   anchor.on("mouseover", function() {
     var layer = this.getLayer();
-    document.body.style.cursor = "pointer";
+    document.body.style.cursor = "se-resize";
     this.setStrokeWidth(4);
     layer.draw();
   });
@@ -139,93 +158,119 @@ function addResizeWidget(group, x, y) {
 }
 
 
-function loadImages(items, callback) {
-  for (var i = 0; i < items.length; i++) {
-    item = items[i];
-    var img = new Image();
-    img.onload = function() {
-      addImage(this);
-    };
-    img.src = item["image_url"];
-    img.item = item;
-  }
+function sendItemUpdate(group, item) {
+  var position = group.getPosition();
+  item.pos_x = position.x;
+  item.pos_y = position.y;
+  
+  var width = group.get(".image")[0].getSize().width;
+  item.scale = width / item.original_width;
+  
+  var data = {
+    "board_id": boardId,
+    "item": item
+  };
+
+  socket.send(JSON.stringify(data));
 }
 
-function addImage(image) {
-  var imageGroup = new Kinetic.Group({
-    x: image.item.pos_x,
-    y: image.item.pos_y,
+function addGroupForItem(item, image) {
+  // Update the item's data.
+  item.original_width = image.width;
+  item.original_height = image.height;
+  
+  var itemGroup = new Kinetic.Group({
+    x: item.pos_x,
+    y: item.pos_y,
     draggable: true
   });
+  
+  // Map the item id to the data.
+  pins[image.item.id] = {
+    "item": item,
+    "group": itemGroup
+  };
 
-  pins[image.item.id] = imageGroup;
-
-  (function(image) {
-    imageGroup.on("dragend", function(evt) {
-      var position = this.getPosition();
-      image.item.pos_x = position.x;
-      image.item.pos_y = position.y;
+  (function(image, item) {
+    itemGroup.on("dragend", function(evt) {
+      sendItemUpdate(this, item);
       pinboard.current_image = this.getChildren()[0];
-      var data = {
-        "board_id": boardId,
-        "item": image.item
-      };
-
-      socket.send(JSON.stringify(data));
+      pinboard.current_item = item;
     });
 
-    imageGroup.on("dragmove", function() {
+    itemGroup.on("dragmove", function() {
       var currentTime = new Date()
       if (currentTime.getTime() % 5 == 0) {
-        var position = this.getPosition();
-        image.item.pos_x = position.x;
-        image.item.pos_y = position.y;
-
-        var data = {
-          "board_id": boardId,
-          "item": image.item
-        };
-
-        socket.send(JSON.stringify(data));
+        sendItemUpdate(this, item);
       }
     });
+  })(image, item);
 
-  })(image);
+  layer.add(itemGroup);
 
-  /*
-   * go ahead and add the groups
-   * to the layer and the layer to the
-   * stage so that the groups have knowledge
-   * of its layer and stage
-   */
-  layer.add(imageGroup);
+  var imageWidth = image.width * image.item.scale;
+  var imageHeight = image.height * image.item.scale;
 
-  var img = new Kinetic.Image({
+  // Rect padding for the item.
+  var rect = new Kinetic.Rect({
     x: 0,
     y: 0,
+    width: imageWidth + PADDING * 2,
+    height: imageHeight + PADDING * 2,
+    fill: 'black',
+    stroke: 'black',
+    cornerRadius: 5,
+    opacity: 0.5,
+    strokeWidth: 1,
+    name: "rect"
+  });
+  itemGroup.add(rect);
+  
+  // Main image content for the item.
+  var img = new Kinetic.Image({
+    x: PADDING,
+    y: PADDING,
     image: image,
-    width: image.width,
-    height: image.height,
+    width: image.width * image.item.scale,
+    height: image.height * image.item.scale,
     name: "image",
   });
-  imageGroup.add(img);
-  var size = img.getSize();
-  addResizeWidget(imageGroup, size.width, size.height);
-  addAnchor(imageGroup, 0, 0, "topLeft");
-  addAnchor(imageGroup, size.width, 0, "topRight");
-  addAnchor(imageGroup, size.width, size.height, "bottomRight");
-  addAnchor(imageGroup, 0, size.height, "bottomLeft");
+  itemGroup.add(img);
+  
+  var size = rect.getSize();
+  addResizeWidget(itemGroup, size.width, size.height);
+  addAnchor(itemGroup, 0, 0, "topLeft", image.item);
+  addAnchor(itemGroup, size.width, 0, "topRight", image.item);
+  addAnchor(itemGroup, size.width, size.height, "bottomRight", image.item);
+  addAnchor(itemGroup, 0, size.height, "bottomLeft", image.item);
 
-  imageGroup.on("dragstart", function() {
+  itemGroup.on("dragstart", function() {
     this.moveToTop();
   });
   stage.draw();
 }
 
+function addItems(items) {
+  for (var i = 0; i < items.length; i++) {
+    addItem(items[i]);
+  }
+}
+
+function addItem(item) {
+  var img = new Image();
+  
+  (function(item, img) {
+    img.onload = function() {
+      addGroupForItem(item, img);
+    };
+  })(item, img);
+  img.src = item["image_url"];
+  img.item = item;
+}
+
 function setupLastObjectTracking(stage) {
   stage.on('click', function(evt) {
     var shape = evt.shape;
-    console.log('Clicked on ' + shape.getName());
     if (shape.getName() === 'image') {
       // Store this image if we need to delete.
       pinboard.current_image = shape;
@@ -236,10 +281,9 @@ function setupLastObjectTracking(stage) {
 $(document).keyup(function (e) {
   if (e.keyCode == 46) {
       if (pinboard.current_image) {
-          console.log(pinboard.current_image);
           var image = pinboard.current_image;
           var group = image.getParent();
-          var item = image.attrs.image.item;
+          var item = pinboard.current_item;
           group.removeChildren()
           pinboard.current_image = undefined;
           stage.draw();
@@ -275,7 +319,8 @@ function initStage() {
     layer.add(cork);
     stage.draw();
   };
-  imageObj.src = 'http://www.a-gc.com/images/2012/11/textures-corkboard-HD-Wallpapers.jpg';
+
+  imageObj.src = '/static/images/cork.jpg';
   setupLastObjectTracking(stage);
 
 }
