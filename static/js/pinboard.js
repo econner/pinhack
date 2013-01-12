@@ -27,6 +27,9 @@ function handleMessage(message) {
       item = data["item"];
       pin = pins[item.id];
       pin.setPosition(item.pos_x, item.pos_y);
+      var scale = item.scale;
+      pin.item.scale = scale;
+      pin.get(".image")[0].setSize(pin.item.original_width * scale, pin.item.original_height * scale);
       stage.draw();
     }
   }
@@ -69,12 +72,13 @@ function update(group, activeAnchor) {
   var width = topRight.attrs.x - topLeft.attrs.x;
   var height = width / aspectRatio;
   if(width && height) {
+    group.item.scale = width / group.item.original_width;
     image.setSize(width, height);
     resizeWidget.setPosition(width, height);
   }
 }
 
-function addAnchor(group, x, y, name) {
+function addAnchor(group, x, y, name, item) {
   var stage = group.getStage();
   var layer = group.getLayer();
 
@@ -103,6 +107,12 @@ function addAnchor(group, x, y, name) {
     var size = group.get(".image")[0].getSize();
     anchor.setPosition(size.width, size.height);
     layer.draw();
+    
+    var data = {
+      "board_id": boardId,
+      "item": group.item
+    };
+    socket.send(JSON.stringify(data));
   });
   // add hover styling
   anchor.on("mouseover", function() {
@@ -196,22 +206,29 @@ function addImage(image) {
    * of its layer and stage
    */
   layer.add(imageGroup);
+  console.log(image.item.scale);
 
   var img = new Kinetic.Image({
     x: 0,
     y: 0,
     image: image,
-    width: image.width,
-    height: image.height,
+    width: image.width * image.item.scale,
+    height: image.height * image.item.scale,
     name: "image",
   });
+  imageGroup.item = item;
+  console.log(image.width);
+  console.log(image.height);
+  image.item.original_width = image.width;
+  image.item.original_height = image.height;
+  
   imageGroup.add(img);
   var size = img.getSize();
   addResizeWidget(imageGroup, size.width, size.height);
-  addAnchor(imageGroup, 0, 0, "topLeft");
-  addAnchor(imageGroup, size.width, 0, "topRight");
-  addAnchor(imageGroup, size.width, size.height, "bottomRight");
-  addAnchor(imageGroup, 0, size.height, "bottomLeft");
+  addAnchor(imageGroup, 0, 0, "topLeft", image.item);
+  addAnchor(imageGroup, size.width, 0, "topRight", image.item);
+  addAnchor(imageGroup, size.width, size.height, "bottomRight", image.item);
+  addAnchor(imageGroup, 0, size.height, "bottomLeft", image.item);
 
   imageGroup.on("dragstart", function() {
     this.moveToTop();
