@@ -23,7 +23,7 @@
           //try to reconnect in 5 seconds
           setTimeout(function() {
             socket = new WebSocket(socket_location);
-          }, 1000);
+          }, 100);
         };
          UserDisplay.checkForUsername();
       });
