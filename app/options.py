@@ -1,6 +1,7 @@
 import argparse
 import os
 
+
 def _parse_arguments():
     parser = argparse.ArgumentParser(description='A very Pinterest hack.')
     parser.add_argument("-d", "--daemonize", help="daemonize the server", action='store_true', default=False)
@@ -10,6 +11,6 @@ def _parse_arguments():
 cli_args = _parse_arguments()
 
 tornado_settings = dict(
-    debug=cli_args.debug, # always refresh templates
+    debug=cli_args.debug,  # always refresh templates
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
 )
