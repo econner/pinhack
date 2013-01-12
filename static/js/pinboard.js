@@ -443,7 +443,6 @@ function sendDrawMessage() {
 window.onload = initStage;
 
 $(document).scroll(function(){
-  console.log($(document).scrollTop());
   // if(> stage.getWidth() - 200){
   //   console.log('increase stage width');
   //   stage.setWidth(stage.getWidth()+ widthInc);
@@ -469,7 +468,6 @@ $(document).scroll(function(){
   //   $('document').scrollLeft = $('.left').width()
   // }
   if($(document).scrollTop() + $(window).height() > stage.getHeight() - 200){
-    console.log('increase stage width');
     stage.setHeight(stage.getHeight()+heightInc);
 
     layer = new Kinetic.Layer();
