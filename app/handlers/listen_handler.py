@@ -19,8 +19,12 @@ class EchoWebSocket(websocket.WebSocketHandler):
     socket_to_user_id[self] = user_id
     print "WebSocket opened"
     board = Board.get(board_id)
+    broadcastData = json.dumps({'board':json.loads(board.to_json()),'user_id':user_id})
     if board:
-        self.write_message(json.dumps({'board': json.loads(board.to_json()), 'user_id': user_id}))
+        #self.write_message(json.dumps({'board': json.loads(board.to_json()), 'user_id': user_id}))
+	self.write_message(broadcastData)
+	self.broad_cast(board_id, broadcastData)
+     
 
   def on_message(self, message):
     data = json.loads(message)
@@ -31,10 +35,17 @@ class EchoWebSocket(websocket.WebSocketHandler):
     board.save()
     
     broadcastData = {"update_type": "pos_change", "item": json.loads(item.to_json())}
-    for socket in sockets[board_id]:
-        socket.write_message(broadcastData)
+    self.broad_cast(board_id, broadcastData)
+    #for socket in sockets[board_id]:
+       #socket.write_message(broadcastData)
 
   def on_close(self):
     print "WebSocket closed"
     board_id = socket_to_board_id.get(self)
     sockets[board_id].remove(self)
+
+  def broad_cast(self, board_id, message):
+    for socket in sockets[board_id]:
+    	socket.write_message(message)
+  
+    
