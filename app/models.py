@@ -19,6 +19,7 @@ class Item(EmbeddedDocument):
 class Board(Document):
   board_id  = StringField  (max_length = 1200)
   id          = UUIDField (auto_fill = True)
+  name      = StringField (max_length = 32, default="Pinboard")
   read_only   = UUIDField (auto_fill = True)
   items       = ListField (EmbeddedDocumentField(Item))
 

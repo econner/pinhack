@@ -4,7 +4,8 @@ var pins = {},
   mouseDown = false,
   itemSelected = false,
   widthInc = window.innerWidth,
-  heightInc = window.innerHeight;
+  heightInc = window.innerHeight,
+  pointBatch = [];
 
 var PADDING = 10;
 
@@ -15,6 +16,11 @@ $(document).ready(function() {
   socket.onmessage = handleMessage;
 });
 
+function updateBoardName(name) {
+  pinboard.name = name || "Pinboard";
+  $("#pinners").html(pinboard.name);
+}
+
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("users_connected" in data) {
@@ -23,6 +29,7 @@ function handleMessage(message) {
 
   if ("board" in data) {
     var items = data["board"]["items"];
+    updateBoardName(data["board"]["name"]);
     addItems(items);
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
@@ -30,15 +37,21 @@ function handleMessage(message) {
     } else if (data["update_type"] == "remove_item") {
       removeItem(data["item_id"]);
     } else if (data["update_type"] == "draw") {
-      var line = new Kinetic.Line({
-        points: [data.x - data.dx, data.y - data.dy, data.x, data.y],
-        stroke: 'black',
-        strokeWidth: 15,
-        lineCap: 'round',
-        lineJoin: 'round'
-      });
-      layer.add(line);
-      stage.draw();
+      var points = data["points"];
+      for (var i = 0; i < points.length; i++) {
+        var point = points[i];
+        var line = new Kinetic.Line({
+          points: [point.x - point.dx, point.y - point.dy, point.x, point.y],
+          stroke: 'black',
+          strokeWidth: 15,
+          lineCap: 'round',
+          lineJoin: 'round'
+        });
+        layer.add(line);
+        stage.draw();
+      }
+    } else if (data["update_type"] == "board_name_update") {
+      updateBoardName(data["name"]);
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -55,6 +68,7 @@ function handleMessage(message) {
       stage.draw();
     }
   }
+
 }
 
 function resizeItemGroup(itemGroup, newWidth, newHeight, shouldUpdateDragger) {
@@ -453,20 +467,23 @@ function initStage() {
       layer.add(line);
       stage.draw();
       data = {
-        "board_id": boardId,
-        "update_type": "draw",
         "x": evt.layerX,
         "y": evt.layerY,
         "dx": evt.webkitMovementX,
         "dy": evt.webkitMovementY,
-        }
-      sendDrawMessage(data);
+      }
+      pointBatch.push(data)
+      if (pointBatch.length == 5) {
+        sendDrawMessage();
+      }
     }
   });
 }
 
-function sendDrawMessage(data) {
+function sendDrawMessage() {
+  var data = {"update_type": "draw", "points": pointBatch, "board_id": boardId};
   socket.send(JSON.stringify(data));
+  pointBatch = [];
 }
 
 window.onload = initStage;
