@@ -1,15 +1,12 @@
 var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
-var sources = [];
+var items = [];
 
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("board" in data) {
-    var items = data["board"]["items"];
-    for (var i = 0; i < items.length; i++) {
-      sources.push(items[i]["image_url"]);
-    }
-    loadImages(sources, initStage);
+    items = data["board"]["items"];
+    loadImages(items, initStage);
   }
 }
 
@@ -117,7 +114,8 @@ function loadImages(sources, callback) {
         callback(images);
       }
     };
-    img.src = sources[i];
+    img.src = sources[i]["image_url"];
+    img.item = sources[i];
   }
 }
 
@@ -132,10 +130,26 @@ function initStage(images) {
 
   for (var i = 0; i < images.length; i++) {
     var imageGroup = new Kinetic.Group({
-      x: 270,
-      y: 100,
+      x: images[i].item.pos_x,
+      y: images[i].item.pos_y,
       draggable: true
     });
+    
+    (function(image) {
+      imageGroup.on("dragend", function() {
+        var position = imageGroup.getPosition();
+        image.item.pos_x = position.x;
+        image.item.pos_y = position.y;
+        
+        var data = {
+          "board_id": boardId,
+          "item": image.item
+        };
+        
+        socket.send(JSON.stringify(data));
+      });
+    })(images[i]);
+    
     /*
      * go ahead and add the groups
      * to the layer and the layer to the

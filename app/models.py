@@ -27,7 +27,9 @@ class Board(Document):
   def updateItem(self, item):
     updatee = item
     for i in range(len(self.items)):
+      print "here"
       if updatee.id == self.items[i].id:
+        print "yo"
         self.items[i] = updatee      
 
   @classmethod

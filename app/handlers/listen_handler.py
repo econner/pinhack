@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 from tornado import websocket
 
-from models import Board
+from models import Board, Item
 
 sockets = defaultdict(list)
 
@@ -19,11 +19,16 @@ class EchoWebSocket(websocket.WebSocketHandler):
     print "WebSocket opened"
 
   def on_message(self, message):
-    # TODO: deserialize the message, get the board id, and process msg
-    #       accordingly
-    board_id = message
+    data = json.loads(message)
+    board_id = data["board_id"]
+    board = Board.get(board_id)
+    item = Item(**data["item"])
+    board.updateItem(item)
+    board.save()
+    
+    #broadcastData = {"update_type": "pos_change", "item": json.loads(item.to_json())}
     for socket in sockets[board_id]:
-        socket.write_message("This is a TEST: %s" % message)
+        socket.write_message(item.to_json())
 
   def on_close(self):
     print "WebSocket closed"
