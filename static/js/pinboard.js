@@ -261,7 +261,7 @@ function initStage() {
   });
   layer = new Kinetic.Layer();
   stage.add(layer);
-<<<<<<< HEAD
+
   
   var imageObj = new Image();
   imageObj.onload = function() {
@@ -276,9 +276,8 @@ function initStage() {
     stage.draw();
   };
   imageObj.src = 'http://www.a-gc.com/images/2012/11/textures-corkboard-HD-Wallpapers.jpg';
-=======
   setupLastObjectTracking(stage);
->>>>>>> e59cb74cb15dffaac9b69a4a25451a5488f9d36e
+
 }
 
 
