@@ -3,7 +3,9 @@ var pins = {},
   layer = null,
   mouseDown = false,
   itemSelected = false,
-  pointBatch = [];
+  pointBatch = [],
+  colors = ["red", "green", "black", "blue"],
+  myColor = colors[Math.floor(Math.random()*3)];
 
 var PADDING = 10;
 
@@ -39,9 +41,10 @@ function handleMessage(message) {
       var points = data["points"];
       for (var i = 0; i < points.length; i++) {
         var point = points[i];
+        console.log(point);
         var line = new Kinetic.Line({
           points: [point.x - point.dx, point.y - point.dy, point.x, point.y],
-          stroke: 'black',
+          stroke: point.color,
           strokeWidth: 8,
           lineCap: 'round',
           lineJoin: 'round'
@@ -409,7 +412,7 @@ function initStage() {
     if (mouseDown && !itemSelected) {
       var line = new Kinetic.Line({
         points: [evt.layerX - evt.webkitMovementX, evt.layerY - evt.webkitMovementY, evt.layerX, evt.layerY],
-        stroke: 'black',
+        stroke: myColor,
         strokeWidth: 8,
         lineCap: 'round',
         lineJoin: 'round'
@@ -421,6 +424,7 @@ function initStage() {
         "y": evt.layerY,
         "dx": evt.webkitMovementX,
         "dy": evt.webkitMovementY,
+        "color": myColor
       }
       pointBatch.push(data)
       if (pointBatch.length == 5) {
