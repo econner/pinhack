@@ -2,11 +2,11 @@ var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
 var items = [];
 var pins = {};
 var stage = null;
+var layer = null
 
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
-  console.log(data);
   if ("board" in data) {
     items = data["board"]["items"];
     loadImages(items, initStage);
@@ -133,7 +133,7 @@ function initStage(images) {
     width: window.innerWidth,
     height: window.innerHeight
   });
-  var layer = new Kinetic.Layer();
+  layer = new Kinetic.Layer();
   stage.add(layer);
 
   for (var i = 0; i < images.length; i++) {
@@ -158,6 +158,24 @@ function initStage(images) {
 
         socket.send(JSON.stringify(data));
       });
+      
+      imageGroup.on("dragmove", function() {
+        var currentTime = new Date()
+        if (currentTime.getTime() % 5 == 0) {
+          console.log("here");
+          var position = imageGroup.getPosition();
+          image.item.pos_x = position.x;
+          image.item.pos_y = position.y;
+          
+          var data = {
+            "board_id": boardId,
+            "item": image.item
+          };
+
+          socket.send(JSON.stringify(data));
+        }
+      });
+      
     })(images[i]);
 
     /*
@@ -172,8 +190,8 @@ function initStage(images) {
       x: 0,
       y: 0,
       image: images[i],
-      width: 200,
-      height: 138,
+      width: images[i].width,
+      height: images[i].height,
       name: "image",
     });
     imageGroup.add(img);
