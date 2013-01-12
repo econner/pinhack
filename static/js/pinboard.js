@@ -78,20 +78,21 @@ function addAnchor(group, x, y, name) {
   group.add(anchor);
 }
 function loadImages(sources, callback) {
-  var images = {};
+  var images = [];
   var loadedImages = 0;
   var numImages = 0;
   for(var src in sources) {
     numImages++;
   }
-  for(var src in sources) {
-    images[src] = new Image();
-    images[src].onload = function() {
+  for(var i = 0; i < sources.length; i++) {
+    var img = new Image();
+    images.push(img);
+    img.onload = function() {
       if(++loadedImages >= numImages) {
         callback(images);
       }
     };
-    images[src].src = sources[src];
+    img.src = sources[i];
   }
 }
 
@@ -101,74 +102,46 @@ function initStage(images) {
     width: window.innerWidth,
     height: window.innerHeight
   });
-  var darthVaderGroup = new Kinetic.Group({
-    x: 270,
-    y: 100,
-    draggable: true
-  });
-  var yodaGroup = new Kinetic.Group({
-    x: 100,
-    y: 110,
-    draggable: true
-  });
   var layer = new Kinetic.Layer();
-
-  /*
-   * go ahead and add the groups
-   * to the layer and the layer to the
-   * stage so that the groups have knowledge
-   * of its layer and stage
-   */
-  layer.add(darthVaderGroup);
-  layer.add(yodaGroup);
   stage.add(layer);
 
-  // darth vader
-  var darthVaderImg = new Kinetic.Image({
-    x: 0,
-    y: 0,
-    image: images.darthVader,
-    width: 200,
-    height: 138,
-    name: "image"
-  });
+  for (var i = 0; i < images.length; i++) {
+    var imageGroup = new Kinetic.Group({
+      x: 270,
+      y: 100,
+      draggable: true
+    });
+    /*
+     * go ahead and add the groups
+     * to the layer and the layer to the
+     * stage so that the groups have knowledge
+     * of its layer and stage
+     */
+    layer.add(imageGroup);
 
-  darthVaderGroup.add(darthVaderImg);
-  addAnchor(darthVaderGroup, 0, 0, "topLeft");
-  addAnchor(darthVaderGroup, 200, 0, "topRight");
-  addAnchor(darthVaderGroup, 200, 138, "bottomRight");
-  addAnchor(darthVaderGroup, 0, 138, "bottomLeft");
+    var img = new Kinetic.Image({
+      x: 0,
+      y: 0,
+      image: images[i],
+      width: 200,
+      height: 138,
+      name: "image"
+    });
+    imageGroup.add(img);
+    var size = img.getSize();
+    addAnchor(imageGroup, 0, 0, "topLeft");
+    addAnchor(imageGroup, size.width, 0, "topRight");
+    addAnchor(imageGroup, size.width, size.height, "bottomRight");
+    addAnchor(imageGroup, 0, size.height, "bottomLeft");
 
-  darthVaderGroup.on("dragstart", function() {
-    this.moveToTop();
-  });
-  // yoda
-  var yodaImg = new Kinetic.Image({
-    x: 0,
-    y: 0,
-    image: images.yoda,
-    width: 93,
-    height: 104,
-    name: "image"
-  });
-
-  yodaGroup.add(yodaImg);
-  addAnchor(yodaGroup, 0, 0, "topLeft");
-  addAnchor(yodaGroup, 93, 0, "topRight");
-  addAnchor(yodaGroup, 93, 104, "bottomRight");
-  addAnchor(yodaGroup, 0, 104, "bottomLeft");
-
-  yodaGroup.on("dragstart", function() {
-    this.moveToTop();
-  });
-
-  stage.draw();
+    imageGroup.on("dragstart", function() {
+      this.moveToTop();
+    });
+    stage.draw();
+  }
 }
 
 window.onload = function() {
-  var sources = {
-    darthVader: "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg",
-    yoda: "http://www.html5canvastutorials.com/demos/assets/yoda.jpg"
-  };
+  var sources = ["http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg", "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg"];
   loadImages(sources, initStage);
 };
