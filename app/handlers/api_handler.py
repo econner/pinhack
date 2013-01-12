@@ -16,7 +16,7 @@ class AddItemHandler(tornado.web.RequestHandler):
     locked    = self.get_argument('locked')
     item = Item(id=uuid.uuid4(), url=url, image_url=image_url, tags=tags,
                 pos_x=pos_x, pos_y=pos_y, scale=scale, locked=locked)
-    b = Board.get_from_db(board_id)
+    b = Board.get(board_id)
     b.items.append(item)
     b.save()
   def get(self):
