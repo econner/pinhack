@@ -3,9 +3,11 @@ var pins = {},
   layer = null,
   mouseDown = false,
   itemSelected = false,
-  pointBatch = [],
   colors = ["red", "green", "black", "blue"],
   myColor = colors[Math.floor(Math.random()*3)];
+  widthInc = window.innerWidth,
+  heightInc = window.innerHeight,
+  pointBatch = [];
 
 var PADDING = 10;
 
@@ -26,7 +28,6 @@ function handleMessage(message) {
   if ("users_connected" in data) {
     UserDisplay.render(data);
   }
-  console.log(message);
 
   if ("board" in data) {
     var items = data["board"]["items"];
@@ -211,7 +212,6 @@ function addPinImage(group) {
       name: "pin_image",
     });
 
-    //urgg
     //group.add(kineticImage);
     //stage.draw();
   };
@@ -268,6 +268,56 @@ function addGroupForItem(item, image) {
       var currentTime = new Date()
       if (currentTime.getTime() % 2 == 0) {
         sendItemUpdate(this, item);
+      }
+      console.log(item.pos_x + " " + (stage.getWidth() - 200));
+      if(item.pos_x > stage.getWidth() - 200){
+        console.log('increase stage width');
+        stage.setWidth(stage.getWidth()+ widthInc);
+
+        layer = new Kinetic.Layer();
+        stage.add(layer);
+
+        var imageObj = new Image();
+        imageObj.onload = function() {
+          var cork = new Kinetic.Image({
+            x: stage.getWidth()-widthInc,
+              y: 0,
+              image: imageObj,
+              width: window.innerWidth,
+              height: window.innerHeight
+          });
+          layer.add(cork);
+          stage.draw();
+        };
+
+        imageObj.src = '/static/images/cork.jpg';
+
+        $('document').scrollLeft = $('.left').width()
+      }
+      if(item.pos_y > stage.getHeight() - 200){
+        console.log('increase stage width');
+        stage.setHeight(stage.getHeight()+heightInc);
+
+        layer = new Kinetic.Layer();
+        stage.add(layer);
+
+        var imageObj = new Image();
+        imageObj.onload = function() {
+          var cork = new Kinetic.Image({
+            x: 0,
+            y: stage.getHeight()-heightInc,
+            image: imageObj,
+            width: window.innerWidth,
+            height: window.innerHeight
+          });
+          layer.add(cork);
+          layer.moveToBottom();
+          stage.draw();
+        };
+
+        imageObj.src = '/static/images/cork.jpg';
+
+        $('document').scrollLeft = $('.left').width()
       }
     });
   })(image, item);
