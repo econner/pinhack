@@ -2,11 +2,11 @@ var socket = new WebSocket("ws://localhost:7100/ws/" + boardId);
 var items = [];
 var pins = {};
 var stage = null;
+var layer = null
 
 socket.onmessage = handleMessage;
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
-  console.log(data);
   if ("board" in data) {
     items = data["board"]["items"];
     loadImages(items, initStage);
@@ -19,51 +19,45 @@ function handleMessage(message) {
 }
 
 function update(group, activeAnchor) {
-  // var topLeft = group.get(".topLeft")[0];
-  // var topRight = group.get(".topRight")[0];
-  // var bottomRight = group.get(".bottomRight")[0];
-  // var bottomLeft = group.get(".bottomLeft")[0];
-  var topCenter = group.get(".topCenter")[0];
+  var topLeft = group.get(".topLeft")[0];
+  var topRight = group.get(".topRight")[0];
+  var bottomRight = group.get(".bottomRight")[0];
+  var bottomLeft = group.get(".bottomLeft")[0];
+  var resizeWidget = group.get(".resizeWidget")[0];
+  
   var image = group.get(".image")[0];
 
-  topCenter.attrs.y = activeAnchor.attrs.y;
-  topCenter.attrs.x = activeAnchor.attrs.x;
   // update anchor positions
   switch (activeAnchor.getName()) {
-    // case "topLeft":
-    //   topRight.attrs.y = activeAnchor.attrs.y;
-    //   bottomLeft.attrs.x = activeAnchor.attrs.x;
-    //   break;
-    // case "topRight":
-    //   var yOffset = topRight.attrs.y - topLeft.attrs.y;
-    //   var xOffset = topRight.attrs.x - topLeft.attrs.x;
-    //   var angle = Math.atan(yOffset / xOffset);
-    //   image.setRotation(angle);
-
-    //   var curHeight = bottomLeft.attrs.y - topLeft.attrs.y;
-
-    //   bottomRight.attrs.x = topRight.attrs.x - yOffset;
-    //   bottomRight.attrs.y = topRight.attrs.y + curHeight;
-
-    //   break;
-    // case "bottomRight":
-    //   bottomLeft.attrs.y = activeAnchor.attrs.y;
-    //   topRight.attrs.x = activeAnchor.attrs.x;
-    //   break;
-    // case "bottomLeft":
-    //   bottomRight.attrs.y = activeAnchor.attrs.y;
-    //   topLeft.attrs.x = activeAnchor.attrs.x;
-    //   break;
+    case "topLeft":
+      topRight.attrs.y = activeAnchor.attrs.y;
+      bottomLeft.attrs.x = activeAnchor.attrs.x;
+      break;
+    case "topRight":
+      topLeft.attrs.y = activeAnchor.attrs.y;
+      bottomRight.attrs.x = activeAnchor.attrs.x;
+      break;
+    case "bottomRight":
+      bottomLeft.attrs.y = activeAnchor.attrs.y;
+      topRight.attrs.x = activeAnchor.attrs.x;
+      break;
+    case "bottomLeft":
+      bottomRight.attrs.y = activeAnchor.attrs.y;
+      topLeft.attrs.x = activeAnchor.attrs.x;
+      break;
   }
 
-  image.setPosition(topCenter.attrs.x, topCenter.attrs.y);
+  image.setPosition(topLeft.attrs.x, topLeft.attrs.y);
 
-  // var width = topRight.attrs.x - topLeft.attrs.x;
-  // var height = bottomLeft.attrs.y - topLeft.attrs.y;
+  var imageSize = image.getSize();
+  var aspectRatio = imageSize.width / imageSize.height;
 
-  // if(width && height && activeAnchor.getName() == "bottomRight") {
-  //   image.setSize(width, height);
-  // }
+  var width = topRight.attrs.x - topLeft.attrs.x;
+  var height = width / aspectRatio;
+  if(width && height) {
+    image.setSize(width, height);
+    resizeWidget.setPosition(width, height);
+  }
 }
 
 function addAnchor(group, x, y, name) {
@@ -73,8 +67,9 @@ function addAnchor(group, x, y, name) {
   var anchor = new Kinetic.Circle({
     x: x,
     y: y,
-    stroke: "#666",
-    fill: "#ddd",
+    stroke: "#000",
+    fill: "#000",
+    opacity: 0,
     strokeWidth: 2,
     radius: 4,
     name: name,
@@ -91,6 +86,8 @@ function addAnchor(group, x, y, name) {
   });
   anchor.on("dragend", function() {
     group.setDraggable(true);
+    var size = group.get(".image")[0].getSize();
+    anchor.setPosition(size.width, size.height);
     layer.draw();
   });
   // add hover styling
@@ -109,6 +106,21 @@ function addAnchor(group, x, y, name) {
 
   group.add(anchor);
 }
+
+function addResizeWidget(group, x, y) {
+  var anchor = new Kinetic.Circle({
+    x: x,
+    y: y,
+    stroke: "#000",
+    fill: "#000",
+    strokeWidth: 2,
+    radius: 4,
+    name: "resizeWidget",
+  });
+  
+  group.add(anchor);
+}
+
 
 function loadImages(items, callback) {
   var images = [];
@@ -133,7 +145,7 @@ function initStage(images) {
     width: window.innerWidth,
     height: window.innerHeight
   });
-  var layer = new Kinetic.Layer();
+  layer = new Kinetic.Layer();
   stage.add(layer);
 
   for (var i = 0; i < images.length; i++) {
@@ -158,6 +170,23 @@ function initStage(images) {
 
         socket.send(JSON.stringify(data));
       });
+      
+      imageGroup.on("dragmove", function() {
+        var currentTime = new Date()
+        if (currentTime.getTime() % 5 == 0) {
+          var position = imageGroup.getPosition();
+          image.item.pos_x = position.x;
+          image.item.pos_y = position.y;
+          
+          var data = {
+            "board_id": boardId,
+            "item": image.item
+          };
+
+          socket.send(JSON.stringify(data));
+        }
+      });
+      
     })(images[i]);
 
     /*
@@ -172,16 +201,17 @@ function initStage(images) {
       x: 0,
       y: 0,
       image: images[i],
-      width: 200,
-      height: 138,
+      width: images[i].width,
+      height: images[i].height,
       name: "image",
     });
     imageGroup.add(img);
     var size = img.getSize();
-    addAnchor(imageGroup, size.width/2, 0, "topCenter");
-    // addAnchor(imageGroup, size.width, 0, "topRight");
-    // addAnchor(imageGroup, size.width, size.height, "bottomRight");
-    // addAnchor(imageGroup, 0, size.height, "bottomLeft");
+    addResizeWidget(imageGroup, size.width, size.height);
+    addAnchor(imageGroup, 0, 0, "topLeft");
+    addAnchor(imageGroup, size.width, 0, "topRight");
+    addAnchor(imageGroup, size.width, size.height, "bottomRight");
+    addAnchor(imageGroup, 0, size.height, "bottomLeft");
 
     imageGroup.on("dragstart", function() {
       this.moveToTop();
