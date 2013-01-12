@@ -7,6 +7,7 @@ var layer = null
 var pinboard = {};
 
 socket.onmessage = handleMessage;
+
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("users_connected" in data) {
@@ -31,10 +32,21 @@ function handleMessage(message) {
       pin.setPosition(item.pos_x, item.pos_y);
       var scale = item.scale;
       pin.item.scale = scale;
-      pin.get(".image")[0].setSize(pin.item.original_width * scale, pin.item.original_height * scale);
+      
+      var newWidth = pin.item.original_width * scale;
+      var newHeight = pin.item.original_height * scale;
+
+      resizePin(pin, newWidth, newHeight);
+
       stage.draw();
     }
   }
+}
+
+function resizePin(pin, newWidth, newHeight) {
+  pin.get(".image")[0].setSize(newWidth, newHeight);
+  pin.get(".bottomRight")[0].setPosition(newWidth, newHeight);
+  pin.get(".resizeWidget")[0].setPosition(newWidth, newHeight); 
 }
 
 function update(group, activeAnchor) {
@@ -219,8 +231,7 @@ function addImage(image) {
     name: "image",
   });
   imageGroup.item = item;
-  console.log(image.width);
-  console.log(image.height);
+
   image.item.original_width = image.width;
   image.item.original_height = image.height;
   
@@ -241,7 +252,6 @@ function addImage(image) {
 function setupLastObjectTracking(stage) {
   stage.on('click', function(evt) {
     var shape = evt.shape;
-    console.log('Clicked on ' + shape.getName());
     if (shape.getName() === 'image') {
       // Store this image if we need to delete.
       pinboard.current_image = shape;
