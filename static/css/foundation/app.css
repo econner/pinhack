@@ -107,3 +107,7 @@
   font-weight: lighter;
   font-size: 20px;
 }
+
+#user_bar .current-user {
+  border: 2px solid yellow;
+}

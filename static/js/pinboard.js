@@ -1,6 +1,8 @@
 var pins = {},
   stage = null,
-  layer = null;
+  layer = null,
+  mouseDown = false,
+  itemSelected = false;
 
 var PADDING = 10;
 
@@ -14,7 +16,7 @@ $(document).ready(function() {
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("users_connected" in data) {
-    UserDisplay.render(data['users_connected']);
+    UserDisplay.render(data);
   }
 
   if ("board" in data) {
@@ -25,6 +27,19 @@ function handleMessage(message) {
       addItem(data["item"]);
     } else if (data["update_type"] == "remove_item") {
       removeItem(data["item_id"]);
+    } else if (data["update_type"] == "draw") {
+      console.log("what");
+      var circle = new Kinetic.Circle({
+        x: data.x,
+        y: data.y,
+        stroke: "#000",
+        fill: "#000",
+        opacity: 1,
+        strokeWidth: 2,
+        radius: 12,
+      });
+      layer.add(circle);
+      stage.draw();
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -118,7 +133,6 @@ function addAnchor(group, x, y, name, item) {
     update(group, this, item);
     var currentTime = new Date()
     if (currentTime.getTime() % 2 == 0) {
-      console.log("yo");
       sendItemUpdate(group, item);
     }
     layer.draw();
@@ -127,11 +141,16 @@ function addAnchor(group, x, y, name, item) {
     group.setDraggable(false);
     this.moveToTop();
   });
+  anchor.on("dragstart", function() {
+    itemSelected = true;
+  });
+  
   anchor.on("dragend", function() {
     group.setDraggable(true);
     var size = group.get(".image")[0].getSize();
     resizeItemGroup(group, size.width, size.height, true);
     layer.draw();
+    itemSelected = false;
   });
   // add hover styling
   anchor.on("mouseover", function() {
@@ -177,8 +196,8 @@ function addPinImage(group) {
       name: "pin_image",
     });
     
-    group.add(kineticImage);
-    stage.draw();
+    //group.add(kineticImage);
+    //stage.draw();
   };
   img.src = "/static/images/pin_green.png";
 }
@@ -218,10 +237,15 @@ function addGroupForItem(item, image) {
   };
 
   (function(image, item) {
+    itemGroup.on("dragstart", function(evt) {
+      itemSelected = true;
+    });
+    
     itemGroup.on("dragend", function(evt) {
       sendItemUpdate(this, item);
       pinboard.current_image = this.getChildren()[0];
       pinboard.current_item = item;
+      itemSelected = false;
     });
 
     itemGroup.on("dragmove", function() {
@@ -360,7 +384,39 @@ function initStage() {
   imageObj.src = '/static/images/cork.jpg';
   setupLastObjectTracking(stage);
 
+  stage.on('mousedown', function(evt) {
+    mouseDown = true;
+  });
+
+  stage.on('mouseup', function(evt) {
+    mouseDown = false;
+  });
+
+  stage.on('mousemove', function(evt) {
+    if (mouseDown && !itemSelected) {
+      var circle = new Kinetic.Circle({
+        x: evt.layerX,
+        y: evt.layerY,
+        stroke: "#000",
+        fill: "#000",
+        opacity: 1,
+        strokeWidth: 2,
+        radius: 12,
+      });
+      layer.add(circle);
+      stage.draw();
+      data = {
+        "board_id": boardId,
+        "update_type": "draw",
+        "x": evt.layerX,
+        "y": evt.layerY}
+      sendDrawMessage(data);
+    }
+  });
 }
 
+function sendDrawMessage(data) {
+  socket.send(JSON.stringify(data));
+}
 
 window.onload = initStage;
