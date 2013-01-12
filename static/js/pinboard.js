@@ -42,7 +42,6 @@ function handleMessage(message) {
       var points = data["points"];
       for (var i = 0; i < points.length; i++) {
         var point = points[i];
-        console.log(point);
         var line = new Kinetic.Line({
           points: [point.x - point.dx, point.y - point.dy, point.x, point.y],
           stroke: point.color,
