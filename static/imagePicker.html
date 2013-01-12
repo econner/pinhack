@@ -22,13 +22,25 @@
     .url-input button {
         height: 30px;
     }
+    .tags-input {
+    	display:none;
+    }
+    .tags-input #tag{
+    	width:88%;
+    	display:inline-block;
+    }
+    .tags-input button {
+        height: 30px;
+    }
 </style>
 	<p class="url-input">Enter an url to find images
         <input type="text" id="url" name="url">
         <button onclick="formSubmit()">Find images</button>
     </p>
-    <p>
-        <button id="select-button" style="display: none">Use</button>
+    <p class="tags-input"> Enter your tags:
+    	<input type="text" id="tag" name="tag" >
+        <button id="select-button">Use</button>
     </p>
 	<div id="images"></div>
+	<p id="error-message" style="display:none"></p>
 
