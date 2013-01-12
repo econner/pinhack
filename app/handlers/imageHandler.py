@@ -5,5 +5,8 @@ import json
 
 class ImageHandler(tornado.web.RequestHandler):
 	def get(self):
-		imageURLs = imageGetter.getImages(self.get_argument('url'))
-		self.write(json.dumps(imageURLs))
+		link = self.get_argument('url')
+		if endings(link) in ('.jpg','.jpeg','.gif'):
+			print link
+		#mageURLs = imageGetter.getImages(self.get_argument('url'))
+		#elf.write(json.dumps(imageURLs))
