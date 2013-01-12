@@ -1,6 +1,7 @@
 var pins = {},
   stage = null,
-  layer = null;
+  layer = null,
+  mouseDown = false;
 
 var PADDING = 10;
 
@@ -373,24 +374,34 @@ function initStage() {
   imageObj.src = '/static/images/cork.jpg';
   setupLastObjectTracking(stage);
 
+  stage.on('mousedown', function(evt) {
+    mouseDown = true;
+  });
+
+  stage.on('mouseup', function(evt) {
+    mouseDown = false;
+  });
+
   stage.on('mousemove', function(evt) {
-    var circle = new Kinetic.Circle({
-      x: evt.layerX,
-      y: evt.layerY,
-      stroke: "#000",
-      fill: "#000",
-      opacity: 1,
-      strokeWidth: 2,
-      radius: 12,
-    });
-    layer.add(circle);
-    stage.draw();
-    data = {
-      "board_id": boardId,
-      "update_type": "draw",
-      "x": evt.layerX,
-      "y": evt.layerY}
-    sendDrawMessage(data);
+    if (mouseDown) {
+      var circle = new Kinetic.Circle({
+        x: evt.layerX,
+        y: evt.layerY,
+        stroke: "#000",
+        fill: "#000",
+        opacity: 1,
+        strokeWidth: 2,
+        radius: 12,
+      });
+      layer.add(circle);
+      stage.draw();
+      data = {
+        "board_id": boardId,
+        "update_type": "draw",
+        "x": evt.layerX,
+        "y": evt.layerY}
+      sendDrawMessage(data);
+    }
   });
 }
 
