@@ -12,8 +12,16 @@ function update(group, activeAnchor) {
       bottomLeft.attrs.x = activeAnchor.attrs.x;
       break;
     case "topRight":
-      topLeft.attrs.y = activeAnchor.attrs.y;
-      bottomRight.attrs.x = activeAnchor.attrs.x;
+      var yOffset = topRight.attrs.y - topLeft.attrs.y;
+      var xOffset = topRight.attrs.x - topLeft.attrs.x;
+      var angle = Math.atan(yOffset / xOffset);
+      image.setRotation(angle);
+      
+      var curHeight = bottomLeft.attrs.y - topLeft.attrs.y;
+      
+      bottomRight.attrs.x = topRight.attrs.x - yOffset;
+      bottomRight.attrs.y = topRight.attrs.y + curHeight;
+      
       break;
     case "bottomRight":
       bottomLeft.attrs.y = activeAnchor.attrs.y;
@@ -26,10 +34,11 @@ function update(group, activeAnchor) {
   }
 
   image.setPosition(topLeft.attrs.x, topLeft.attrs.y);
-
+  
   var width = topRight.attrs.x - topLeft.attrs.x;
   var height = bottomLeft.attrs.y - topLeft.attrs.y;
-  if(width && height) {
+  
+  if(width && height && activeAnchor.getName() == "bottomRight") {
     image.setSize(width, height);
   }
 }
@@ -125,7 +134,7 @@ function initStage(images) {
       image: images[i],
       width: 200,
       height: 138,
-      name: "image"
+      name: "image",
     });
     imageGroup.add(img);
     var size = img.getSize();
