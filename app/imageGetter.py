@@ -6,6 +6,8 @@ def getImages(url):
 	if any(url.endswith(x) for x in ('.jpg','.gif','.jpeg')):
 		imageList.append(url)
 	else:
+		if url.startswith('http://') == False:
+			url = 'http://' + url
 		soup = BeautifulSoup(urllib.urlopen(url))
 		for link in soup.find_all('img'):
 			imageURL = link.get('src')

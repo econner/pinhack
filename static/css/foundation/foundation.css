@@ -9,7 +9,7 @@ body { background: white; font-family: "Helvetica Neue", "Helvetica", Helvetica,
 /* Links ---------------------- */
 a img { border: none; }
 
-a { color: #2ba6cb; text-decoration: none; line-height: inherit; }
+a { color: rgb(219, 224, 226); text-decoration: none; line-height: inherit; }
 
 a:hover { color: #2795b6; }
 
@@ -44,7 +44,7 @@ p a, p a:visited { line-height: inherit; }
 figure { margin: 0; }
 
 /* Base Type Styles Using Modular Scale ---------------------- */
-body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, p, blockquote, th, td { margin: 0; padding: 0; font-size: 14px; direction: ltr; }
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, p, blockquote, th, td { margin: 0; padding: 0; font-size: 13px; font-weight: bold; direction: ltr; }
 
 p { font-family: inherit; font-weight: normal; font-size: 14px; line-height: 1.6; margin-bottom: 17px; }
 p.lead { font-size: 17.5px; line-height: 1.6; margin-bottom: 17px; }

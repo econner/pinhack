@@ -23,6 +23,8 @@ function handleMessage(message) {
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
       addItem(data["item"]);
+    } else if (data["update_type"] == "remove_item") {
+      removeItem(data["item_id"]);
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -114,6 +116,11 @@ function addAnchor(group, x, y, name, item) {
 
   anchor.on("dragmove", function() {
     update(group, this, item);
+    var currentTime = new Date()
+    if (currentTime.getTime() % 2 == 0) {
+      console.log("yo");
+      sendItemUpdate(group, item);
+    }
     layer.draw();
   });
   anchor.on("mousedown touchstart", function() {
@@ -157,6 +164,25 @@ function addResizeWidget(group, x, y) {
   group.add(anchor);
 }
 
+function addPinImage(group) {
+  var img = new Image();
+  
+  img.onload = function() {
+    var kineticImage = new Kinetic.Image({
+      x: -10,
+      y: -20,
+      image: img,
+      width: 30,
+      height: 30,
+      name: "pin_image",
+    });
+    
+    group.add(kineticImage);
+    stage.draw();
+  };
+  img.src = "/static/images/pin_green.png";
+}
+
 
 function sendItemUpdate(group, item) {
   var position = group.getPosition();
@@ -186,7 +212,7 @@ function addGroupForItem(item, image) {
   });
 
   // Map the item id to the data.
-  pins[image.item.id] = {
+  pins[item.id] = {
     "item": item,
     "group": itemGroup
   };
@@ -200,7 +226,7 @@ function addGroupForItem(item, image) {
 
     itemGroup.on("dragmove", function() {
       var currentTime = new Date()
-      if (currentTime.getTime() % 5 == 0) {
+      if (currentTime.getTime() % 2 == 0) {
         sendItemUpdate(this, item);
       }
     });
@@ -208,8 +234,8 @@ function addGroupForItem(item, image) {
 
   layer.add(itemGroup);
 
-  var imageWidth = image.width * image.item.scale;
-  var imageHeight = image.height * image.item.scale;
+  var imageWidth = image.width * item.scale;
+  var imageHeight = image.height * item.scale;
 
   // Rect padding for the item.
   var rect = new Kinetic.Rect({
@@ -231,22 +257,36 @@ function addGroupForItem(item, image) {
     x: PADDING,
     y: PADDING,
     image: image,
-    width: image.width * image.item.scale,
-    height: image.height * image.item.scale,
+    width: image.width * item.scale,
+    height: image.height * item.scale,
     name: "image",
   });
   itemGroup.add(img);
 
+  img.on('click', function(evt) {
+      // Store this image if we need to delete.
+      pinboard.current_image = img;
+      pinboard.current_item = item;
+  });
+
+  img.on('dblclick', function(evt) {
+      var url = item.url
+      window.open(url, '_blank');
+      window.focus();
+  });
+
   var size = rect.getSize();
   addResizeWidget(itemGroup, size.width, size.height);
-  addAnchor(itemGroup, 0, 0, "topLeft", image.item);
-  addAnchor(itemGroup, size.width, 0, "topRight", image.item);
-  addAnchor(itemGroup, size.width, size.height, "bottomRight", image.item);
-  addAnchor(itemGroup, 0, size.height, "bottomLeft", image.item);
+  addAnchor(itemGroup, 0, 0, "topLeft", item);
+  addAnchor(itemGroup, size.width, 0, "topRight", item);
+  addAnchor(itemGroup, size.width, size.height, "bottomRight", item);
+  addAnchor(itemGroup, 0, size.height, "bottomLeft", item);
+  addPinImage(itemGroup);
 
   itemGroup.on("dragstart", function() {
     this.moveToTop();
   });
+  itemGroup.moveToTop();
   stage.draw();
 }
 
@@ -265,26 +305,15 @@ function addItem(item) {
     };
   })(item, img);
   img.src = item["image_url"];
-  img.item = item;
+}
+
+function removeItem(item_id) {
+    var itemGroup = pins[item_id].group;
+    itemGroup.remove();
+    stage.draw()
 }
 
 function setupLastObjectTracking(stage) {
-  stage.on('click', function(evt) {
-    var shape = evt.shape;
-    if (shape.getName() === 'image') {
-      // Store this image if we need to delete.
-      pinboard.current_image = shape;
-    }
-  });
-
-  stage.on('dblclick', function(evt) {
-    var shape = evt.shape;
-    if (shape.getName() === 'image') {
-      var url = shape.getImage().item.url
-      window.open(url, '_blank');
-      window.focus();
-    }
-  });
 }
 
 $(document).keyup(function (e) {
