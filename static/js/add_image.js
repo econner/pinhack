@@ -22,7 +22,7 @@ function formSubmit()
 			$.ajax({
 		  		url: "/add_item/",
 		  		type: 'PUT',
-		  		data: {board_id: boardId, url: 'http://www.aol.com/',
+		  		data: {board_id: boardId, url: url,
 		  				image_url: image_url, tags: [''], pos_x: 100, pos_y: 200,
 		  				scale: 1, locked: true
 		  		}}).done(function() {
