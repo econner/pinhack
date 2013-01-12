@@ -157,6 +157,25 @@ function addResizeWidget(group, x, y) {
   group.add(anchor);
 }
 
+function addPinImage(group) {
+  var img = new Image();
+  
+  img.onload = function() {
+    var kineticImage = new Kinetic.Image({
+      x: -10,
+      y: -20,
+      image: img,
+      width: 50,
+      height: 50,
+      name: "pin_image",
+    });
+    
+    group.add(kineticImage);
+  };
+  img.src = "/static/images/pin_green.png";
+  stage.draw();
+}
+
 
 function sendItemUpdate(group, item) {
   var position = group.getPosition();
@@ -186,7 +205,7 @@ function addGroupForItem(item, image) {
   });
   
   // Map the item id to the data.
-  pins[image.item.id] = {
+  pins[item.id] = {
     "item": item,
     "group": itemGroup
   };
@@ -208,8 +227,8 @@ function addGroupForItem(item, image) {
 
   layer.add(itemGroup);
 
-  var imageWidth = image.width * image.item.scale;
-  var imageHeight = image.height * image.item.scale;
+  var imageWidth = image.width * item.scale;
+  var imageHeight = image.height * item.scale;
 
   // Rect padding for the item.
   var rect = new Kinetic.Rect({
@@ -231,18 +250,19 @@ function addGroupForItem(item, image) {
     x: PADDING,
     y: PADDING,
     image: image,
-    width: image.width * image.item.scale,
-    height: image.height * image.item.scale,
+    width: image.width * item.scale,
+    height: image.height * item.scale,
     name: "image",
   });
   itemGroup.add(img);
   
   var size = rect.getSize();
   addResizeWidget(itemGroup, size.width, size.height);
-  addAnchor(itemGroup, 0, 0, "topLeft", image.item);
-  addAnchor(itemGroup, size.width, 0, "topRight", image.item);
-  addAnchor(itemGroup, size.width, size.height, "bottomRight", image.item);
-  addAnchor(itemGroup, 0, size.height, "bottomLeft", image.item);
+  addAnchor(itemGroup, 0, 0, "topLeft", item);
+  addAnchor(itemGroup, size.width, 0, "topRight", item);
+  addAnchor(itemGroup, size.width, size.height, "bottomRight", item);
+  addAnchor(itemGroup, 0, size.height, "bottomLeft", item);
+  addPinImage(itemGroup);
 
   itemGroup.on("dragstart", function() {
     this.moveToTop();
@@ -265,7 +285,6 @@ function addItem(item) {
     };
   })(item, img);
   img.src = item["image_url"];
-  img.item = item;
 }
 
 function setupLastObjectTracking(stage) {
