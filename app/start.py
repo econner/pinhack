@@ -9,9 +9,14 @@ from handlers import imageHandler
 class Application(tornado.web.Application):
     def __init__(self):
         url_handlers = [
+            (r'/(favicon\.ico)', tornado.web.StaticFileHandler, {
+                'path': 'static/images/'
+            }),
             (r'/ws/(.*)', listen_handler.EchoWebSocket),
             (r"/", main_handler.MainHandler),
-            (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
+            (r'/static/(.*)', tornado.web.StaticFileHandler, {
+                'path': 'static/'
+            }),
             (r'/add_item/', api_handler.AddItemHandler),
             (r'/remove_item/', api_handler.RemoveItemHandler),
             (r"/image/", imageHandler.ImageHandler),
