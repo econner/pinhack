@@ -13,6 +13,11 @@ $(document).ready(function() {
   socket.onmessage = handleMessage;
 });
 
+function updateBoardName(name) {
+  pinboard.name = name || "Pinboard";
+  $("#pinners").html(pinboard.name);
+}
+
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("users_connected" in data) {
@@ -21,7 +26,7 @@ function handleMessage(message) {
 
   if ("board" in data) {
     var items = data["board"]["items"];
-    pinboard.name = data["board"]["name"] || "Pinboard";
+    updateBoardName(data["board"]["name"]);
     addItems(items);
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
@@ -39,7 +44,7 @@ function handleMessage(message) {
       layer.add(line);
       stage.draw();
     } else if (data["update_type"] == "board_name_change") {
-      pinboard.name = data["name"];
+      updateBoardName(data["name"]);
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -57,7 +62,6 @@ function handleMessage(message) {
     }
   }
 
-  $("#pinners").html(pinboard.name);
 }
 
 function resizeItemGroup(itemGroup, newWidth, newHeight, shouldUpdateDragger) {
@@ -198,8 +202,8 @@ function addPinImage(group) {
       name: "pin_image",
     });
 
-    //group.add(kineticImage);
-    //stage.draw();
+    group.add(kineticImage);
+    stage.draw();
   };
   img.src = "/static/images/pin_green.png";
 }
