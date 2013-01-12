@@ -171,9 +171,9 @@ function addPinImage(group) {
     });
     
     group.add(kineticImage);
+    stage.draw();
   };
   img.src = "/static/images/pin_green.png";
-  stage.draw();
 }
 
 
