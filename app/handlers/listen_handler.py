@@ -42,6 +42,12 @@ class EchoWebSocket(websocket.WebSocketHandler):
 
     def on_message(self, message):
         data = json.loads(message)
+        if data["update_type"] == "draw":
+          board_id = data["board_id"]
+          broadcastData = data
+          self.broadcast(board_id, broadcastData, write_to_self=False)
+          return
+        
         board_id = data["board_id"]
         board = Board.get(board_id)
         item = Item(**data["item"])

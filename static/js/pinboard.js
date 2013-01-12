@@ -25,6 +25,19 @@ function handleMessage(message) {
       addItem(data["item"]);
     } else if (data["update_type"] == "remove_item") {
       removeItem(data["item_id"]);
+    } else if (data["update_type"] == "draw") {
+      console.log("what");
+      var circle = new Kinetic.Circle({
+        x: data.x,
+        y: data.y,
+        stroke: "#000",
+        fill: "#000",
+        opacity: 1,
+        strokeWidth: 2,
+        radius: 12,
+      });
+      layer.add(circle);
+      stage.draw();
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -360,7 +373,29 @@ function initStage() {
   imageObj.src = '/static/images/cork.jpg';
   setupLastObjectTracking(stage);
 
+  stage.on('mousemove', function(evt) {
+    var circle = new Kinetic.Circle({
+      x: evt.layerX,
+      y: evt.layerY,
+      stroke: "#000",
+      fill: "#000",
+      opacity: 1,
+      strokeWidth: 2,
+      radius: 12,
+    });
+    layer.add(circle);
+    stage.draw();
+    data = {
+      "board_id": boardId,
+      "update_type": "draw",
+      "x": evt.layerX,
+      "y": evt.layerY}
+    sendDrawMessage(data);
+  });
 }
 
+function sendDrawMessage(data) {
+  socket.send(JSON.stringify(data));
+}
 
 window.onload = initStage;
