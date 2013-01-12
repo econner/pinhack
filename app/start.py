@@ -5,7 +5,7 @@ import options
 from handlers import main_handler, api_handler, listen_handler
 
 application = tornado.web.Application([
-  (r'/ws', listen_handler.EchoWebSocket),
+  (r'/ws/(.*\-.*)', listen_handler.EchoWebSocket),
   (r"/", main_handler.MainHandler),
   (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
   (r'/add_item/', api_handler.AddItemHandler),
