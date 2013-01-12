@@ -3,6 +3,8 @@ var pins = {},
   layer = null,
   mouseDown = false,
   itemSelected = false,
+  colors = ["red", "green", "black", "blue"],
+  myColor = colors[Math.floor(Math.random()*3)];
   widthInc = window.innerWidth,
   heightInc = window.innerHeight,
   pointBatch = [];
@@ -40,10 +42,11 @@ function handleMessage(message) {
       var points = data["points"];
       for (var i = 0; i < points.length; i++) {
         var point = points[i];
+        console.log(point);
         var line = new Kinetic.Line({
           points: [point.x - point.dx, point.y - point.dy, point.x, point.y],
-          stroke: 'black',
-          strokeWidth: 15,
+          stroke: point.color,
+          strokeWidth: 8,
           lineCap: 'round',
           lineJoin: 'round'
         });
@@ -266,56 +269,6 @@ function addGroupForItem(item, image) {
       if (currentTime.getTime() % 2 == 0) {
         sendItemUpdate(this, item);
       }
-      console.log(item.pos_x + " " + (stage.getWidth() - 200));
-      if(item.pos_x > stage.getWidth() - 200){
-        console.log('increase stage width');
-        stage.setWidth(stage.getWidth()+ widthInc);
-
-        layer = new Kinetic.Layer();
-        stage.add(layer);
-
-        var imageObj = new Image();
-        imageObj.onload = function() {
-          var cork = new Kinetic.Image({
-            x: stage.getWidth()-widthInc,
-              y: 0,
-              image: imageObj,
-              width: window.innerWidth,
-              height: window.innerHeight
-          });
-          layer.add(cork);
-          stage.draw();
-        };
-
-        imageObj.src = '/static/images/cork.jpg';
-
-        $('document').scrollLeft = $('.left').width()
-      }
-      if(item.pos_y > stage.getHeight() - 200){
-        console.log('increase stage width');
-        stage.setHeight(stage.getHeight()+heightInc);
-
-        layer = new Kinetic.Layer();
-        stage.add(layer);
-
-        var imageObj = new Image();
-        imageObj.onload = function() {
-          var cork = new Kinetic.Image({
-            x: 0,
-            y: stage.getHeight()-heightInc,
-            image: imageObj,
-            width: window.innerWidth,
-            height: window.innerHeight
-          });
-          layer.add(cork);
-          layer.moveToBottom();
-          stage.draw();
-        };
-
-        imageObj.src = '/static/images/cork.jpg';
-
-        $('document').scrollLeft = $('.left').width()
-      }
     });
   })(image, item);
 
@@ -459,8 +412,8 @@ function initStage() {
     if (mouseDown && !itemSelected) {
       var line = new Kinetic.Line({
         points: [evt.layerX - evt.webkitMovementX, evt.layerY - evt.webkitMovementY, evt.layerX, evt.layerY],
-        stroke: 'black',
-        strokeWidth: 15,
+        stroke: myColor,
+        strokeWidth: 8,
         lineCap: 'round',
         lineJoin: 'round'
       });
@@ -471,6 +424,7 @@ function initStage() {
         "y": evt.layerY,
         "dx": evt.webkitMovementX,
         "dy": evt.webkitMovementY,
+        "color": myColor
       }
       pointBatch.push(data)
       if (pointBatch.length == 5) {
@@ -487,3 +441,52 @@ function sendDrawMessage() {
 }
 
 window.onload = initStage;
+
+$(document).scroll(function(){
+  // if(> stage.getWidth() - 200){
+  //   console.log('increase stage width');
+  //   stage.setWidth(stage.getWidth()+ widthInc);
+
+  //   layer = new Kinetic.Layer();
+  //   stage.add(layer);
+
+  //   var imageObj = new Image();
+  //   imageObj.onload = function() {
+  //     var cork = new Kinetic.Image({
+  //       x: stage.getWidth()-widthInc,
+  //         y: 0,
+  //         image: imageObj,
+  //         width: window.innerWidth,
+  //         height: window.innerHeight
+  //     });
+  //     layer.add(cork);
+  //     stage.draw();
+  //   };
+
+  //   imageObj.src = '/static/images/cork.jpg';
+
+  //   $('document').scrollLeft = $('.left').width()
+  // }
+  if($(document).scrollTop() + $(window).height() > stage.getHeight() - 200){
+    stage.setHeight(stage.getHeight()+heightInc);
+
+    layer = new Kinetic.Layer();
+    stage.add(layer);
+
+    var imageObj = new Image();
+    imageObj.onload = function() {
+      var cork = new Kinetic.Image({
+        x: 0,
+          y: stage.getHeight()-heightInc,
+          image: imageObj,
+          width: window.innerWidth,
+          height: window.innerHeight
+      });
+      layer.add(cork);
+      layer.moveToBottom();
+      stage.draw();
+    };
+
+    imageObj.src = '/static/images/cork.jpg';
+  }
+});
