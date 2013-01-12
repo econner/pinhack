@@ -15,5 +15,8 @@ class MainHandler(tornado.web.RequestHandler):
     self.redirect('/'+str(b.id))
 
 class BoardHandler(tornado.web.RequestHandler):
-  def get(self):
-    self.render('../../static/index.html')
+  def get(self, board_id):
+    board = Board.get_from_db(board_id)
+    if not board:
+      raise tornado.web.HTTPError(404)
+    self.render('../../static/index.html', board=board)

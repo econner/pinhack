@@ -3,6 +3,8 @@ from dictshield.document import Document, EmbeddedDocument
 from dictshield.fields import UUIDField, StringField, FloatField
 from dictshield.fields.compound import ListField, EmbeddedDocumentField
 
+from redis_connection import redis_conn as r
+
 class Item(EmbeddedDocument):
   id    = UUIDField   (auto_fill  = True)
   url   = StringField (max_length = 300)
@@ -16,4 +18,8 @@ class Board(Document):
   read_only   = UUIDField (auto_fill = True)
   items       = ListField (EmbeddedDocumentField(Item))
 
+  @classmethod
+  def get_from_db(cls, board_id):
+    #TODO: Convert to board
+    return r.get("b_%s" % board_id)
 
