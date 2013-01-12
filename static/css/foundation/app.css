@@ -34,6 +34,10 @@
   display: none;
 }
 
+#add-image-btn {
+  cursor: pointer;
+}
+
 .test_image {
   width: 20%;
   height: 20%;

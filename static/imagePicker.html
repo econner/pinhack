@@ -12,14 +12,22 @@
 	}
 	#images {
 		overflow-y: scroll;
-		max-height: 350px;
-	}
+        max-height: 350px;
+        background-color: rgba(0,0,0,0.02);
+    }
+    .url-input #url {
+        width:77%;
+        display:inline-block;
+    }
+    .url-input button {
+        height: 30px;
+    }
 </style>
-	<p>Enter an url to find images
-    url: <input type="text" id="url" name="url">
+	<p class="url-input">Enter an url to find images
+        <input type="text" id="url" name="url">
+        <button onclick="formSubmit()">Find images</button>
     </p>
     <p>
-		<input type="button" onclick="formSubmit()" value="Find images">
         <button id="select-button" style="display: none">Use</button>
     </p>
 	<div id="images"></div>
