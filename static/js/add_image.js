@@ -5,7 +5,7 @@ $(function() {
 function formSubmit()
 {
 	url = document.getElementById("url").value;
-	link = 'http://localhost:7100/image/?url=' + url;
+	link = '/image/?url=' + url;
 	$("#images").html("");
 	$.getJSON(link, function(data) {
 		$.each(data, function(i,item){
