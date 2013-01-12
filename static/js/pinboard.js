@@ -23,6 +23,8 @@ function handleMessage(message) {
   } else if ("update_type" in data) {
     if (data["update_type"] == "add_item") {
       addItem(data["item"]);
+    } else if (data["update_type"] == "remove_item") {
+      removeItem(data["item_id"]);
     } else {
       var updatedItem = data["item"];
       var itemGroup = pins[updatedItem.id].group;
@@ -256,6 +258,18 @@ function addGroupForItem(item, image) {
   });
   itemGroup.add(img);
 
+  img.on('click', function(evt) {
+      // Store this image if we need to delete.
+      pinboard.current_image = img;
+      pinboard.current_item = item;
+  });
+
+  img.on('dblclick', function(evt) {
+      var url = item.url
+      window.open(url, '_blank');
+      window.focus();
+  });
+
   var size = rect.getSize();
   addResizeWidget(itemGroup, size.width, size.height);
   addAnchor(itemGroup, 0, 0, "topLeft", item);
@@ -288,23 +302,13 @@ function addItem(item) {
   img.src = item["image_url"];
 }
 
-function setupLastObjectTracking(stage) {
-  stage.on('click', function(evt) {
-    var shape = evt.shape;
-    if (shape.getName() === 'image') {
-      // Store this image if we need to delete.
-      pinboard.current_image = shape;
-    }
-  });
+function removeItem(item_id) {
+    var itemGroup = pins[item_id].group;
+    itemGroup.remove();
+    stage.draw()
+}
 
-  stage.on('dblclick', function(evt) {
-    var shape = evt.shape;
-    if (shape.getName() === 'image') {
-      var url = shape.getImage().item.url
-      window.open(url, '_blank');
-      window.focus();
-    }
-  });
+function setupLastObjectTracking(stage) {
 }
 
 $(document).keyup(function (e) {
