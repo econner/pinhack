@@ -113,12 +113,12 @@ function loadImages(items, callback) {
     var img = new Image();
     images.push(img);
     img.onload = function() {
-      if(++loadedImages >= numImages) {
+      if(++loadedImages >= numItems) {
         callback(images);
       }
     };
-    img.src = sources[i]["image_url"];
-    img.item = sources[i];
+    img.src = items[i]["image_url"];
+    img.item = items[i];
   }
 }
 
