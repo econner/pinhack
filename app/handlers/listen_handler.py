@@ -77,9 +77,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
         user_id = socket_to_user_id.get(self)
         users[board_id].remove(user_id)
         sockets[board_id].remove(self)
-        self.broadcast(board_id, json.dumps({
-            'users_connected': users[board_id]
-        }))
+        self._broadcast_user_display(board_id)
         del socket_to_board_id[self]
         del socket_to_user_id[self]
 
