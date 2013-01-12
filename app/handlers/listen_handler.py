@@ -22,6 +22,20 @@ class EchoWebSocket(websocket.WebSocketHandler):
             if user_id not in socket_to_user_id.values():
                 return user_id
 
+    def _broadcast_user_display(self, board_id):
+        for socket in sockets[board_id]:
+            socket.write_message(json.dumps({
+                'users_connected': users[board_id],
+                'current_user': socket_to_user_id[socket]
+            }))
+
+    def _update_user(self, board_id, new_user_id):
+        old_user_id = socket_to_user_id.get(self)
+        idx = users[board_id].index(old_user_id)
+        users[board_id].remove(old_user_id)
+        users[board_id].insert(idx, new_user_id)
+        socket_to_user_id[self] = new_user_id
+
     def open(self, board_id):
         user_id = self._generate_user_id()
 
@@ -36,23 +50,27 @@ class EchoWebSocket(websocket.WebSocketHandler):
                 'board': json.loads(board.to_json())
             })
             self.write_message(broadcastData)
-            self.broadcast(board_id, json.dumps({
-                'users_connected': users[board_id]
-            }))
+            self._broadcast_user_display(board_id)
 
     def on_message(self, message):
         data = json.loads(message)
+        message_type = data.get('message_type')
         board_id = data["board_id"]
-        board = Board.get(board_id)
-        item = Item(**data["item"])
-        board.updateItem(item)
-        board.save()
 
-        broadcastData = {
-            "update_type": "pos_change",
-            "item": json.loads(item.to_json())
-        }
-        self.broadcast(board_id, broadcastData, write_to_self=False)
+        if message_type and message_type == 'user_update':
+            self._update_user(board_id, data['username'])
+            self._broadcast_user_display(board_id)
+        else:
+            board = Board.get(board_id)
+            item = Item(**data["item"])
+            board.updateItem(item)
+            board.save()
+
+            broadcastData = {
+                "update_type": "pos_change",
+                "item": json.loads(item.to_json())
+            }
+            self.broadcast(board_id, broadcastData, write_to_self=False)
 
     def on_close(self):
         board_id = socket_to_board_id.get(self)

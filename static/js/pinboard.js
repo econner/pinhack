@@ -14,7 +14,7 @@ $(document).ready(function() {
 function handleMessage(message) {
   var data = $.parseJSON(message.data);
   if ("users_connected" in data) {
-    UserDisplay.render(data['users_connected']);
+    UserDisplay.render(data);
   }
 
   if ("board" in data) {

@@ -127,3 +127,7 @@
   background-color: rgb(138, 137, 137);
   border-radius: 8px;
 }
+
+#user_bar .current-user {
+  border: 2px solid yellow;
+}
