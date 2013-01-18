@@ -22,11 +22,12 @@ function formSubmit()
 		$("#select-button").unbind('click');
 		$("#select-button").click(function() {
 			var image_url = $('.selected-image').attr('src');
+			var tags = document.getElementById('tag').value.split(" ");	
 			$.ajax({
 		  		url: "/add_item/",
 		  		type: 'PUT',
 		  		data: {board_id: boardId, url: url,
-		  				image_url: image_url, tags: [''], pos_x: 100, pos_y: 200,
+		  				image_url: image_url, tags: tags, pos_x: 100, pos_y: 200,
 		  				scale: 1, locked: true
 		  		}}).done(function() {
 		  			$("#add-image-modal").trigger('reveal:close');

@@ -198,7 +198,7 @@ function addResizeWidget(group, x, y) {
   group.add(anchor);
 }
 
-function addPinImage(group) {
+function addPinImage(group, tooltip) {
   var img = new Image();
 
   img.onload = function() {
@@ -211,8 +211,17 @@ function addPinImage(group) {
       name: "pin_image",
     });
 
-    //group.add(kineticImage);
-    //stage.draw();
+    kineticImage.on('click', function(evt) {
+        if (tooltip.attrs.visible == true) {
+          tooltip.attrs.visible = false;
+        }
+        else {
+          tooltip.attrs.visible = true;
+        }
+    });
+
+    group.add(kineticImage);
+    stage.draw();
   };
   img.src = "/static/images/pin_green.png";
 }
@@ -314,13 +323,30 @@ function addGroupForItem(item, image) {
       window.focus();
   });
 
+
+
+  var tooltip = new Kinetic.Text({
+      x: 2 * PADDING,
+      y: -2 * PADDING,
+      text: item.tags,
+      fontFamily: "Helvetica Neue",
+      fontSize: 15,
+      fontStyle: "bold",
+      padding: 0,
+      textFill: "white",
+      fill: "#232323",
+      visible: false
+  });
+  itemGroup.add(tooltip);
+
+
   var size = rect.getSize();
   addResizeWidget(itemGroup, size.width, size.height);
   addAnchor(itemGroup, 0, 0, "topLeft", item);
   addAnchor(itemGroup, size.width, 0, "topRight", item);
   addAnchor(itemGroup, size.width, size.height, "bottomRight", item);
   addAnchor(itemGroup, 0, size.height, "bottomLeft", item);
-  addPinImage(itemGroup);
+  addPinImage(itemGroup, tooltip);
 
   itemGroup.on("dragstart", function() {
     this.moveToTop();

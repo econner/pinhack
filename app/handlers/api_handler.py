@@ -12,11 +12,14 @@ class AddItemHandler(tornado.web.RequestHandler):
         board_id = self.get_argument('board_id')
         url = self.get_argument('url')
         image_url = self.get_argument('image_url')
-        tags = self.get_argument('tags', [])
+        #tags = self.get_arguments('tags[]', [])
+        tags = self.request.arguments.get('tags[]');
+        #tags = self.get_argument('tags[]', [])
         pos_x = self.get_argument('pos_x')
         pos_y = self.get_argument('pos_y')
         scale = self.get_argument('scale')
         locked = self.get_argument('locked')
+
         item = Item(id=uuid.uuid4(), url=url, image_url=image_url, tags=tags,
                     pos_x=pos_x, pos_y=pos_y, scale=scale, locked=locked)
         b = Board.get(board_id)
