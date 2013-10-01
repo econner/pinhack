@@ -16,7 +16,7 @@
         {% if debug %}
         var socket_location = "ws://localhost:7100/ws/" + boardId;
         {% else %}
-        var socket_location = "ws://ec2-54-235-213-135.compute-1.amazonaws.com/ws/" + boardId;
+        var socket_location = "ws://ec2-54-242-44-62.compute-1.amazonaws.com/ws/" + boardId;
         {% end %}
         socket = new WebSocket(socket_location);
         socket.onclose = function() {

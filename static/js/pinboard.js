@@ -319,7 +319,7 @@ function addGroupForItem(item, image) {
 
   img.on('dblclick', function(evt) {
       var url = item.url
-      window.open(url, '_blank');
+      window.open("http://" + url, '_blank');
       window.focus();
   });
 
